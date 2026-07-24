@@ -12,8 +12,13 @@ A critique is an ordered list of changes with exact values, produced by evaluati
 ## Workflow
 
 1. **Get a real render.** Screenshot the running artifact (browser preview, simulator,
-   plot output, game capture) — never critique source code or imagination. For motion,
-   interact with it (hover, open/close, mash) before judging.
+   plot output, game capture) — never critique source code or imagination.
+   **If anything moves, a still is not a render.** Capture the motion and watch it:
+   ```bash
+   ../motion/scripts/capture-motion.py index.html --out review.gif --duration 1200
+   ```
+   Then interact with it directly — hover, open and close, mash the trigger — because
+   interruption bugs only appear under abuse.
 2. **Inventory** — one paragraph of what is objectively on screen (elements, reading
    order as encountered, palette, faces in use). Forces looking before judging.
 3. **Score the rubric** — eight dimensions, 1–5 each, using

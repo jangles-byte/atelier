@@ -1,8 +1,8 @@
 {
   "name": "atelier",
   "displayName": "Atelier",
-  "version": "0.1.0",
-  "description": "Elite art-direction skills for Claude Code: design direction, OKLCH color systems, typography & layout, motion, structured critique, and frame-rate craft — principles first, any stack second.",
+  "version": "0.2.0",
+  "description": "Animation skills for Claude Code \u2014 production motion recipes (modals, drawers, toasts, FLIP lists, view transitions, particles, screen shake, springs), easing and spring math for any language, a dead-motion diagnostic, and a capture script that records the running animation to a GIF so Claude can watch what it built.",
   "author": {
     "name": "Atelier contributors",
     "url": "https://github.com/jangles-byte/atelier"
@@ -10,5 +10,16 @@
   "homepage": "https://github.com/jangles-byte/atelier",
   "repository": "https://github.com/jangles-byte/atelier",
   "license": "MIT",
-  "keywords": ["design", "ui", "color", "typography", "motion", "animation", "critique", "performance", "skills"]
+  "keywords": [
+    "animation",
+    "motion",
+    "ui",
+    "transitions",
+    "easing",
+    "springs",
+    "particles",
+    "game-feel",
+    "design",
+    "skills"
+  ]
 }

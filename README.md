@@ -1,156 +1,122 @@
 # Atelier
 
-**Elite art direction for Claude Code — in any medium.**
+**Animation skills for Claude Code — and the ability to watch what it built.**
 
-Claude's default design output is competent but generic: safe fonts, predictable
-layouts, timid color, lifeless motion. Atelier is a package of six deep,
-principle-first skills that make Claude work like a senior art director — writing
-a design philosophy before touching pixels, building color systems in OKLCH,
-setting type with intent, animating with real physics, critiquing its own renders
-against a rubric, and holding frame rate as a design requirement.
-
-It is not locked to one stack. Every reference file teaches the medium-agnostic
-principle first, then shows how it lands in 2–3 different stacks — CSS, Swift/Metal
-or Canvas, plotting libraries, game engines. Web UI, native apps, data viz,
-generative art, game graphics, slides: same principles, different renderers.
-
-## Before / after
-
-The same request — "build a landing page for Driftlog, a dev-log tool" — without
-and with Atelier. Full artifacts, the written philosophy, and the critique that
-drove the changes are in [`examples/`](examples/).
-
-| Before (Claude's defaults) | After (Atelier workflow) |
-|---|---|
-| ![Before: generic purple-gradient SaaS page](examples/before.png) | ![After: Warm Terminal direction](examples/after.png) |
-
-The before page is the template every generator emits: purple gradient hero,
-centered stack, three emoji feature cards — and two WCAG contrast failures.
-The after page came from the package's workflow: a named direction
-([Warm Terminal](examples/DESIGN.md)), a signature move (the page is a log of
-itself), one rationed accent, a two-voice type system, and every text pair
-contrast-verified in the rendered page.
-
-### A second medium: data visualization
-
-The same protocol, run on a chart instead of a page
-([`chart-critique.md`](examples/chart-critique.md)). It caught two failures that
-review-by-eye does not: the default orange series at **2.53:1** on white (below
-the 3:1 floor for chart marks), and two series collapsing to **1.14:1** under
-simulated deuteranopia — indistinguishable, with a legend as their only key.
-
-| Before (library defaults) | After (Atelier workflow) |
-|---|---|
-| ![Default grouped bar chart](examples/chart-before.png) | ![Revised line chart](examples/chart-after.png) |
-
-### A third medium: motion
-
-Two pages with **byte-identical markup and static CSS**, differing only in their motion
-code — so what you're seeing is motion alone
-([`motion-critique.md`](examples/motion-critique.md)):
+Claude can write an animation. What it can't normally do is *see* it — so it ships
+`transition: all 300ms linear`, one duration for everything, no exits, no stagger, and no
+idea that any of it feels dead. Atelier fixes both halves: a deep motion skill with tuned,
+production-ready recipes, and a capture script that records the running animation to a GIF
+so Claude can look at the result and fix what's wrong.
 
 ![Side-by-side animation: linear with no stagger versus eased with a 40ms stagger](examples/motion.gif)
 
-Left arrives as a slab. Right cascades and snaps. Same pixels, same 20px of travel.
-Sampled per animation frame in Chrome, that difference looks like this:
+Left is `300ms linear`, no stagger. Right is `260ms` ease-out with a 40ms stagger. Same
+markup, same pixels, same 20px of travel — the only difference is the motion code.
 
-![Measured motion curves: linear versus ease-out](examples/motion-curve.png)
+## Watch your own work
 
-| Metric | Before | After |
-|---|---|---|
-| Progress at 40ms | 11% | **49%** (4.4× further) |
-| Stagger spread across 5 cards | 0.0ms | **149.9ms** |
-| rAF callbacks during 1s idle | **60** | **0** |
+The thing that makes this a tool rather than a reading list:
 
-The diagnostic caught eight failures by name — linear easing, one duration for
-everything, zero stagger, no exit, no causality, layout-triggering properties, and a
-permanent `requestAnimationFrame` loop waking 60×/second forever to animate one 7px
-dot.
+```bash
+skills/motion/scripts/capture-motion.py index.html --out motion.gif \
+    --trigger "document.querySelector('#open').click()" --duration 1200
+```
 
-## The skills
+It drives headless Chrome over the DevTools protocol and records real composited frames —
+so it works for CSS transitions, Web Animations, GSAP/Framer/Motion One, canvas, and WebGL
+alike. Point it at a local file or a dev server, give it something to click, and get back a
+GIF you can actually judge. The `critique` skill requires this step: if anything moves, a
+still is not a render.
 
-| Skill | What it does |
+*Needs Chrome/Chromium, ffmpeg, and `pip install websocket-client`.*
+
+## The motion skill
+
+The front door. It ships tuned values, not vibes — every recipe carries durations, curves,
+per-stack code, a reduced-motion variant, and the failure mode that ruins it.
+
+| Reference | What's in it |
 |---|---|
-| **design-direction** | The front door. Interrogates purpose, audience, tone, differentiation; writes a short design philosophy with a named aesthetic point of view (and what it is *not*) before any implementation. Kills genericism at the source. |
-| **color** | Perceptual palette construction in OKLCH: tinted neutrals, chroma-curved ramps, semantic tokens, dark/light themes as siblings (never inversions), computed contrast discipline, glow and saturation restraint. |
-| **typography-and-layout** | Type pairing on the one-axis rule, modular scales with a brave top end, measure and line-height discipline, the spacing ladder, grids and the five sanctioned ways to break them, negative space as material. |
-| **motion** | Disney's 12 principles translated for UI, procedural animation, and game feel; a duration scale; spring math (damping ratio first) portable to any language; stagger choreography; a 11-point "why does this animation feel dead?" diagnostic. |
-| **critique** | The quality gate. Renders the real artifact, scores an 8-dimension rubric with evidence, and outputs ranked changes with exact values — px, ms, curves, hex/oklch — never vibes. Accessibility findings always outrank aesthetics. |
-| **performance-craft** | Design that holds its frame rate. Compositor-friendly web animation; ProMotion/adaptive-refresh timing, Metal overdraw and particle budgets, E-core scheduling on Apple silicon; engine budgets; and a graceful-degradation ladder ordered by visual damage. |
+| **recipes-interface.md** | Press & hover, modal/dialog, drawer with drag-to-dismiss, dropdown, toast stacks, accordion (incl. the `height:auto` problem), tabs, list insert/remove/reorder via FLIP, drag with velocity-aware snap-back, number tickers |
+| **recipes-transitions.md** | Route transitions (View Transitions API + fallback), shared-element/hero flights, scroll-driven reveals, parallax that doesn't jank, skeleton→content, progress & pending states |
+| **recipes-procedural.md** | The loop & delta time, spring integrator, pooled particles, trauma-based screen shake, hit-stop, ambient/flow fields, chase cameras |
+| **easing-and-springs.md** | Curve selection, named cubic-béziers, damping-ratio-first spring tuning, stagger rules, interruption |
+| **principles.md** | Disney's 12 principles translated for UI and game feel, the duration scale, the accessibility floor |
+| **dead-motion-diagnostic.md** | An 11-point ordered diagnostic for motion that feels dead, floaty, cheap, or janky |
 
-## The workflow the package enforces
+Here's game feel built straight from `recipes-procedural.md` — 70ms hit-stop, trauma-based
+shake with a squared falloff, volume-conserving squash, and a pooled 28-particle burst
+emitted along the impact normal ([`juice-demo.html`](examples/juice-demo.html), recorded
+with the capture script):
 
-For any visual work:
+![Game juice: hit-stop, screen shake, squash and particle burst](examples/juice.gif)
 
-1. **Philosophy first** — `design-direction` writes the intent before any pixels.
-2. **Implement** — with `color`, `typography-and-layout`, `motion` as needed.
-3. **Render the real result** — screenshot the browser, simulator, plot, or game.
-4. **Critique** — run the `critique` rubric on the render; fix by exact values.
-5. **Iterate** — re-render, re-measure, until the weakest rubric score is a 4.
+## Supporting skills
 
-Nothing ships on step 2. The [example critique](examples/critique.md) shows the
-loop catching a real contrast defect in this repo's own "after" page on round 2.
+Animation doesn't happen in a vacuum — these carry the craft around it.
+
+| Skill | Role |
+|---|---|
+| **performance-craft** | Janky motion is failed motion. Compositor-friendly properties and GPU layers on the web; ProMotion/adaptive-refresh timing, Metal overdraw and particle budgets, and efficiency-core scheduling on Apple silicon; engine draw-call and fill-rate budgets; and a graceful-degradation ladder ordered by visual damage. |
+| **critique** | The quality gate. Capture the real thing, score an 8-dimension rubric with evidence, output ranked changes with exact values — px, ms, curves, colors. Accessibility findings always outrank aesthetics. |
+| **design-direction** | Sets the motion temperament (snappy or viscous, calm or nervous) alongside a written aesthetic point of view, so animation choices follow intent instead of habit. |
+| **color** | Perceptual palettes in OKLCH, dark/light theme families, contrast discipline — including the glow and saturation restraint that keeps motion from becoming noise. |
+| **typography-and-layout** | Type pairing, modular scale, the spacing ladder, grids and when to break them. |
 
 ## Install
 
-**As a plugin (recommended — one command):**
+**As a plugin (one command):**
 
 ```
 /plugin marketplace add jangles-byte/atelier
 ```
-
-then
-
 ```
 /plugin install atelier@atelier
 ```
 
-**As plain skills (git clone):**
+**As plain skills:**
 
 ```bash
 git clone https://github.com/jangles-byte/atelier.git
 cp -r atelier/skills/* ~/.claude/skills/
 ```
 
-Either way, the skills auto-trigger on relevant work — "build me a landing page",
-"pick a palette", "this animation feels dead", "review this screenshot" — no
-manual invocation needed. Each SKILL.md is a short router; the depth lives in
-`references/` files that load only when the job needs them, so your context stays
-light.
+The skills auto-trigger on relevant work — "animate this", "why does this feel dead",
+"add a page transition" — no manual invocation needed. Each SKILL.md is a short router;
+depth lives in `references/` that load only when the job needs them, so context stays light.
 
-## A taste of the critique skill
+## What the diagnostic catches
 
-From [`examples/critique.md`](examples/critique.md), run against the "before"
-page above:
+Run against a deliberately dead interaction ([`motion-critique.md`](examples/motion-critique.md)),
+with every number sampled per animation frame in Chrome:
 
-> **Scores:** Hierarchy 2 — headline, two equal-weight hero buttons, three
-> identical cards all compete… Color 1 — the exact slop-list gradient
-> (#667eea→#764ba2); card body #888 on white = 3.5:1, **fails AA**…
-> Distinctiveness 1 — fails the swap test, fails the describability test.
->
-> **Changes (ranked):**
-> 1. **[accessibility]** Card body text: #888 → #555 (7.4:1) — clears AA now,
->    independent of the redesign.
-> 2. **[accessibility]** All interactive elements: add `:focus-visible { outline:
->    2px solid currentColor; outline-offset: 2px }`…
-> 3. **[color]** Replace the gradient system: ground the page in
->    oklch(18% 0.015 75) charcoal-amber; one accent oklch(78% 0.14 75) reserved
->    for the prompt, the primary CTA, and the cursor…
+| Metric | Before | After |
+|---|---|---|
+| Progress at 40ms | 11% | **49%** (4.4× further) |
+| Stagger spread across 5 cards | 0.0ms | **149.9ms** |
+| `requestAnimationFrame` callbacks per idle second | **60** | **0** |
 
-Exact locations, exact values, ranked, accessibility first. That's the contract.
+That last row is a permanent rAF loop waking the CPU sixty times a second, forever, to
+animate one 7px dot — the kind of thing that never shows up as jank, only as battery.
 
-## Design lineage
+![Measured motion curves: linear versus ease-out](examples/motion-curve.png)
 
-Atelier stands on documented shoulders: the philosophy-first workflow generalizes
-Anthropic's [`algorithmic-art` and `canvas-design`](https://github.com/anthropics/skills)
-skills; the router-plus-references architecture and motion discipline take cues
-from [genjutsu](https://github.com/AThevon/genjutsu); the critique framing
-answers the gaps in existing art-direction skills (no rubric, no exact values,
-web-only). The canon inside: Disney's 12 principles, damped-harmonic-oscillator
-spring theory, OKLCH color science, WCAG/APCA contrast, gestalt composition, and
-platform rendering pipelines.
+## Beyond motion
+
+The same capture-and-critique loop applies to static work. Two worked examples:
+
+- **[A landing page](examples/critique.md)** — the default purple-gradient template
+  rebuilt against a written design philosophy, with every text pair contrast-verified.
+- **[A chart](examples/chart-critique.md)** — library defaults where the most important
+  series measured **2.53:1** on white (below the 3:1 floor for chart marks) and two series
+  collapsed to **1.14:1** under simulated deuteranopia, with a legend as their only key.
+
+| | Before | After |
+|---|---|---|
+| Page | ![](examples/before.png) | ![](examples/after.png) |
+| Chart | ![](examples/chart-before.png) | ![](examples/chart-after.png) |
 
 ## Contributing & license
 
-PRs welcome — see [CONTRIBUTING.md](CONTRIBUTING.md) (principle first, exact
-values, no stack lock-in). MIT license.
+PRs welcome — see [CONTRIBUTING.md](CONTRIBUTING.md). Principle first, exact values, no
+stack lock-in. MIT.
