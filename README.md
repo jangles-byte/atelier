@@ -8,6 +8,14 @@ idea that any of it feels dead. Atelier fixes both halves: a deep motion skill w
 production-ready recipes, and a capture script that records the running animation to a GIF
 so Claude can look at the result and fix what's wrong.
 
+![Editorial hero: a didone headline rising behind a mask over a burning ember field](examples/hero.gif)
+
+Everything above was produced by these skills and recorded by the capture script below —
+the flow field, the masked line-by-line reveal, the type, the palette. One gold, earned by
+the field's velocity. Source: [`hero.html`](examples/hero.html).
+
+### The difference the skill makes
+
 ![Side-by-side animation: linear with no stagger versus eased with a 40ms stagger](examples/motion.gif)
 
 Left is `300ms linear`, no stagger. Right is `260ms` ease-out with a 40ms stagger. Same
@@ -44,10 +52,16 @@ per-stack code, a reduced-motion variant, and the failure mode that ruins it.
 | **principles.md** | Disney's 12 principles translated for UI and game feel, the duration scale, the accessibility floor |
 | **dead-motion-diagnostic.md** | An 11-point ordered diagnostic for motion that feels dead, floaty, cheap, or janky |
 
-Here's game feel built straight from `recipes-procedural.md` — 70ms hit-stop, trauma-based
-shake with a squared falloff, volume-conserving squash, and a pooled 28-particle burst
-emitted along the impact normal ([`juice-demo.html`](examples/juice-demo.html), recorded
-with the capture script):
+The procedural recipes drive generative work too — this is a two-octave noise flow field
+where colour is earned rather than decorative: deep oxblood where the field is calm, gold
+only where it runs fastest, so brightness encodes velocity
+([`ember.html`](examples/ember.html)).
+
+![Ember: a curl-noise flow field with velocity-mapped colour](examples/ember.gif)
+
+Game feel from the same file — 70ms hit-stop, trauma-based shake with a squared falloff,
+volume-conserving squash, and a pooled particle burst along the impact normal
+([`juice-demo.html`](examples/juice-demo.html)):
 
 ![Game juice: hit-stop, screen shake, squash and particle burst](examples/juice.gif)
 

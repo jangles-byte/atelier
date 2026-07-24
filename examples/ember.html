@@ -1,0 +1,101 @@
+<!DOCTYPE html>
+<html lang="en"><head><meta charset="utf-8"><title>Ember — flow field</title>
+<style>
+  html,body { margin:0; height:100%; background:#06040a; overflow:hidden; }
+  canvas { display:block; width:100vw; height:100vh; }
+</style></head><body>
+<canvas id="c"></canvas>
+<script>
+/* Ember — a flow field with art direction.
+   Direction: heat with restraint. Near-black violet ground; embers ride a slowly
+   evolving noise field. Colour is *earned* — deep oxblood where the field is calm,
+   gold only where it runs fastest, so brightness means velocity rather than decoration.
+   Uses recipes-procedural.md §1 (clamped dt), §3 (pooling), §6 (ambient fields). */
+
+const cv = document.getElementById('c'), ctx = cv.getContext('2d', { alpha:false });
+const DPR = Math.min(devicePixelRatio || 1, 2);
+let W, H;
+function resize(){ W = cv.width = Math.floor(innerWidth*DPR); H = cv.height = Math.floor(innerHeight*DPR);
+  ctx.fillStyle = '#06040a'; ctx.fillRect(0,0,W,H); }
+addEventListener('resize', resize); resize();
+
+/* ---- canonical Perlin (seeded => the composition is reproducible) ---- */
+const perm = new Uint8Array(512);
+(() => { let r = 20260724; const t = Array.from({length:256},(_,i)=>i);
+  for (let i=255;i>0;i--){ r = (r*1664525+1013904223)>>>0; const j = r%(i+1); [t[i],t[j]]=[t[j],t[i]]; }
+  for (let i=0;i<512;i++) perm[i] = t[i&255]; })();
+const fade = t => t*t*t*(t*(t*6-15)+10);
+const lerp = (a,b,t) => a+(b-a)*t;
+function grad(h,x,y,z){ const g=h&15, u = g<8?x:y, v = g<4?y:(g===12||g===14?x:z);
+  return ((g&1)===0?u:-u) + ((g&2)===0?v:-v); }
+function noise(x,y,z){
+  const X=Math.floor(x)&255, Y=Math.floor(y)&255, Z=Math.floor(z)&255;
+  x-=Math.floor(x); y-=Math.floor(y); z-=Math.floor(z);
+  const u=fade(x), v=fade(y), w=fade(z);
+  const A=perm[X]+Y, AA=perm[A]+Z, AB=perm[A+1]+Z;
+  const B=perm[X+1]+Y, BA=perm[B]+Z, BB=perm[B+1]+Z;
+  return lerp(
+    lerp(lerp(grad(perm[AA],x,y,z),       grad(perm[BA],x-1,y,z),u),
+         lerp(grad(perm[AB],x,y-1,z),     grad(perm[BB],x-1,y-1,z),u), v),
+    lerp(lerp(grad(perm[AA+1],x,y,z-1),   grad(perm[BA+1],x-1,y,z-1),u),
+         lerp(grad(perm[AB+1],x,y-1,z-1), grad(perm[BB+1],x-1,y-1,z-1),u), v),
+    w);
+}
+/* two octaves: the second adds the fine filigree that keeps it from looking like syrup */
+function field(x,y,t){
+  return noise(x*0.0013, y*0.0013, t) * 1.0
+       + noise(x*0.0041, y*0.0041, t*1.6) * 0.34;
+}
+
+/* ---- pooled particles ---- */
+const N = 3200;
+const P = new Float32Array(N*6);                  // x y px py life max
+function spawn(i, seeded){
+  const o=i*6;
+  P[o]=Math.random()*W; P[o+1]=Math.random()*H;
+  P[o+2]=P[o]; P[o+3]=P[o+1];
+  P[o+4]= seeded ? Math.random()*7 : 0;           // staggered ages: the field never pulses
+  P[o+5]= 4 + Math.random()*7;
+}
+for (let i=0;i<N;i++) spawn(i,true);
+
+let t = 0, last = performance.now();
+const TAU = Math.PI*2;
+function frame(now){
+  let dt = (now-last)/1000; last = now;
+  dt = Math.min(dt, 1/30);                        // §1 clamp
+  t += dt*0.05;                                   // sub-perceptual evolution
+
+  ctx.globalCompositeOperation = 'source-over';   // trails: fade, never clear
+  ctx.fillStyle = 'rgba(6,4,10,0.052)';
+  ctx.fillRect(0,0,W,H);
+  ctx.globalCompositeOperation = 'lighter';       // additive: overlap becomes heat
+  ctx.lineCap = 'round';
+
+  for (let i=0;i<N;i++){
+    const o=i*6;
+    let x=P[o], y=P[o+1];
+    const a = field(x,y,t) * TAU * 1.9;            // noise -> angle: reliable, strong flow
+    const base = 118*DPR, gust = 92*DPR;
+    const sp = base + gust*(0.5+0.5*Math.sin(a*1.7));
+    const vx = Math.cos(a)*sp, vy = Math.sin(a)*sp;
+
+    P[o+2]=x; P[o+3]=y;
+    x += vx*dt; y += vy*dt;
+    P[o]=x; P[o+1]=y; P[o+4]+=dt;
+
+    const age = P[o+4]/P[o+5];
+    if (age>=1 || x<-30 || x>W+30 || y<-30 || y>H+30){ spawn(i,false); continue; }
+
+    const speed = (sp - base)/gust;                       // 0..1
+    const env = Math.min(1, age*5) * Math.min(1, (1-age)*3);   // no popping in or out
+    const L = 32 + speed*52, C = 0.10 + speed*0.085, Hue = 22 + speed*58;
+    ctx.strokeStyle = `oklch(${L}% ${C} ${Hue} / ${0.46*env})`;
+    ctx.lineWidth = (0.6 + speed*1.7)*DPR;
+    ctx.beginPath(); ctx.moveTo(P[o+2],P[o+3]); ctx.lineTo(x,y); ctx.stroke();
+  }
+  requestAnimationFrame(frame);
+}
+requestAnimationFrame(frame);
+</script>
+</body></html>

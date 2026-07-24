@@ -1,0 +1,120 @@
+<!DOCTYPE html>
+<html lang="en"><head><meta charset="utf-8"><title>Hero — type, colour and motion as one system</title>
+<style>
+/* ── Direction: "Cold Open" ──────────────────────────────────────────────
+   An ember field burning behind glass. The field is atmosphere, never content:
+   it is dimmed, slowed and scrimmed so it can never compete with reading — the
+   restraint is the design. Type is a high-contrast didone at poster scale,
+   rising into frame behind a mask the way a curtain lifts. Colour is rationed:
+   one gold, earned by the field's velocity and echoed in exactly two places.
+   Signature move: the headline is revealed by a rising mask, line by line,
+   90ms apart — nothing fades, everything arrives.                            */
+:root{
+  --ink:#07050b; --paper:oklch(94% 0.012 75); --muted:oklch(68% 0.02 70);
+  --gold:oklch(80% 0.135 78);
+  --ease-out:cubic-bezier(0.22,1,0.36,1);
+  --ease-mask:cubic-bezier(0.16,1,0.3,1);
+  --lead:3300ms; /* let the field build before the type arrives */
+}
+*{margin:0;padding:0;box-sizing:border-box}
+html,body{height:100%;background:var(--ink);overflow:hidden}
+canvas{position:fixed;inset:0;width:100%;height:100%}
+/* scrim: buys the type its contrast without dimming the whole field */
+.scrim{position:fixed;inset:0;
+  background:linear-gradient(100deg, rgba(7,5,11,.94) 0%, rgba(7,5,11,.82) 38%,
+                                     rgba(7,5,11,.30) 68%, rgba(7,5,11,.05) 100%);}
+.wrap{position:relative;height:100%;display:grid;align-content:center;
+  padding:0 9vw;max-width:1180px}
+.kicker{font:500 13px/1 ui-monospace,"SF Mono",monospace;letter-spacing:.2em;
+  text-transform:uppercase;color:var(--gold);opacity:0;
+  animation:rise 620ms var(--ease-out) calc(var(--lead) + 120ms) both}
+h1{font-family:"Didot","Bodoni 72","Playfair Display",Georgia,serif;
+  font-weight:400;font-size:clamp(44px,7.4vw,104px);line-height:.98;
+  letter-spacing:-.018em;color:var(--paper);margin:26px 0 0}
+/* each line masks its own reveal — overflow clips the rising inner span */
+.line{display:block;overflow:hidden}
+.line i{display:block;font-style:normal;transform:translateY(105%);
+  animation:lift 940ms var(--ease-mask) both}
+.line:nth-child(1) i{animation-delay:calc(var(--lead) + 260ms)}
+.line:nth-child(2) i{animation-delay:calc(var(--lead) + 350ms)}
+.line:nth-child(3) i{animation-delay:calc(var(--lead) + 440ms)}
+h1 em{font-style:italic;color:var(--gold)}
+.rule{height:1px;width:132px;background:var(--gold);margin:38px 0 0;
+  transform-origin:left center;transform:scaleX(0);
+  animation:draw 720ms var(--ease-out) calc(var(--lead) + 720ms) both}
+.sub{font:400 17px/1.55 "Inter",system-ui,sans-serif;color:var(--muted);
+  max-width:44ch;margin:24px 0 0;opacity:0;
+  animation:rise 700ms var(--ease-out) calc(var(--lead) + 860ms) both}
+.meta{position:fixed;left:9vw;bottom:38px;display:flex;gap:22px;opacity:0;
+  font:500 11.5px/1 ui-monospace,monospace;letter-spacing:.14em;
+  text-transform:uppercase;color:oklch(66% 0.015 70); /* 4.99:1 even over a lit filament */
+  animation:rise 700ms var(--ease-out) calc(var(--lead) + 1040ms) both}
+@keyframes lift{to{transform:translateY(0)}}
+@keyframes rise{from{opacity:0;transform:translateY(12px)}to{opacity:1;transform:none}}
+@keyframes draw{to{transform:scaleX(1)}}
+@media (prefers-reduced-motion:reduce){
+  .line i{transform:none;animation:none}
+  .kicker,.sub,.meta{opacity:1;animation:none}
+  .rule{transform:scaleX(1);animation:none}
+}
+</style></head><body>
+<canvas id="c"></canvas><div class="scrim"></div>
+<div class="wrap">
+  <div class="kicker">Atelier · motion</div>
+  <h1>
+    <span class="line"><i>Animation that</i></span>
+    <span class="line"><i>knows <em>why</em> it</i></span>
+    <span class="line"><i>is moving.</i></span>
+  </h1>
+  <div class="rule"></div>
+  <p class="sub">Tuned recipes, spring mathematics, and a capture script that
+  records the running result — so the animation gets judged by watching it, not
+  by reading the source.</p>
+</div>
+<div class="meta"><span>curl field · 1800 embers</span><span>reveal 940ms · stagger 90ms</span></div>
+<script>
+/* the ember field, dimmed to atmosphere: fewer particles, lower alpha, slower */
+const cv=document.getElementById('c'),ctx=cv.getContext('2d',{alpha:false});
+const DPR=Math.min(devicePixelRatio||1,2);let W,H;
+function resize(){W=cv.width=Math.floor(innerWidth*DPR);H=cv.height=Math.floor(innerHeight*DPR);
+  ctx.fillStyle='#07050b';ctx.fillRect(0,0,W,H);}
+addEventListener('resize',resize);resize();
+const perm=new Uint8Array(512);
+(()=>{let r=20260724;const t=Array.from({length:256},(_,i)=>i);
+ for(let i=255;i>0;i--){r=(r*1664525+1013904223)>>>0;const j=r%(i+1);[t[i],t[j]]=[t[j],t[i]];}
+ for(let i=0;i<512;i++)perm[i]=t[i&255];})();
+const fade=t=>t*t*t*(t*(t*6-15)+10),lerp=(a,b,t)=>a+(b-a)*t;
+function grad(h,x,y,z){const g=h&15,u=g<8?x:y,v=g<4?y:(g===12||g===14?x:z);
+  return((g&1)===0?u:-u)+((g&2)===0?v:-v);}
+function noise(x,y,z){const X=Math.floor(x)&255,Y=Math.floor(y)&255,Z=Math.floor(z)&255;
+  x-=Math.floor(x);y-=Math.floor(y);z-=Math.floor(z);
+  const u=fade(x),v=fade(y),w=fade(z);
+  const A=perm[X]+Y,AA=perm[A]+Z,AB=perm[A+1]+Z,B=perm[X+1]+Y,BA=perm[B]+Z,BB=perm[B+1]+Z;
+  return lerp(lerp(lerp(grad(perm[AA],x,y,z),grad(perm[BA],x-1,y,z),u),
+                   lerp(grad(perm[AB],x,y-1,z),grad(perm[BB],x-1,y-1,z),u),v),
+              lerp(lerp(grad(perm[AA+1],x,y,z-1),grad(perm[BA+1],x-1,y,z-1),u),
+                   lerp(grad(perm[AB+1],x,y-1,z-1),grad(perm[BB+1],x-1,y-1,z-1),u),v),w);}
+const fieldAt=(x,y,t)=>noise(x*0.0013,y*0.0013,t)+noise(x*0.0041,y*0.0041,t*1.6)*0.34;
+const N=1800,P=new Float32Array(N*6);
+function spawn(i,seed){const o=i*6;P[o]=Math.random()*W;P[o+1]=Math.random()*H;
+  P[o+2]=P[o];P[o+3]=P[o+1];P[o+4]=seed?Math.random()*7:0;P[o+5]=4+Math.random()*7;}
+for(let i=0;i<N;i++)spawn(i,true);
+let t=0,last=performance.now();const TAU=Math.PI*2;
+function frame(now){let dt=(now-last)/1000;last=now;dt=Math.min(dt,1/30);t+=dt*0.04;
+  ctx.globalCompositeOperation='source-over';
+  ctx.fillStyle='rgba(7,5,11,0.055)';ctx.fillRect(0,0,W,H);
+  ctx.globalCompositeOperation='lighter';ctx.lineCap='round';
+  for(let i=0;i<N;i++){const o=i*6;let x=P[o],y=P[o+1];
+    const a=fieldAt(x,y,t)*TAU*1.9,base=96*DPR,gust=76*DPR;
+    const sp=base+gust*(0.5+0.5*Math.sin(a*1.7));
+    const vx=Math.cos(a)*sp,vy=Math.sin(a)*sp;
+    P[o+2]=x;P[o+3]=y;x+=vx*dt;y+=vy*dt;P[o]=x;P[o+1]=y;P[o+4]+=dt;
+    const age=P[o+4]/P[o+5];
+    if(age>=1||x<-30||x>W+30||y<-30||y>H+30){spawn(i,false);continue;}
+    const speed=(sp-base)/gust,env=Math.min(1,age*5)*Math.min(1,(1-age)*3);
+    ctx.strokeStyle=`oklch(${30+speed*50}% ${0.09+speed*0.08} ${22+speed*58} / ${0.34*env})`;
+    ctx.lineWidth=(0.55+speed*1.5)*DPR;
+    ctx.beginPath();ctx.moveTo(P[o+2],P[o+3]);ctx.lineTo(x,y);ctx.stroke();}
+  requestAnimationFrame(frame);}
+requestAnimationFrame(frame);
+</script></body></html>

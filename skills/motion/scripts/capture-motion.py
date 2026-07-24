@@ -97,6 +97,13 @@ class CDP:
             if "method" in msg:
                 self.events.append(msg)
 
+    def send_nowait(self, method, **params):
+        """Fire-and-forget. Waiting for an ack's reply while frames stream in buffers
+        them faster than they drain, and a heavy page then records far past its
+        deadline — so acks must never block the read loop."""
+        self._id += 1
+        self.ws.send(json.dumps({"id": self._id, "method": method, "params": params}))
+
     def pump(self, timeout):
         """Yield events until `timeout` seconds have passed."""
         deadline = time.time() + timeout
@@ -202,15 +209,20 @@ def main():
                     maxHeight=a.height * a.scale)
 
         shots = []
+        started = time.time()
+        # hard caps: a slow page must still stop on time, and never blow up memory
+        max_frames = max(4, int(a.duration / 1000 * a.fps * 2.5))
         for ev in client.pump(a.duration / 1000):
             if ev.get("method") != "Page.screencastFrame":
                 continue
             prm = ev["params"]
             shots.append((prm["metadata"].get("timestamp") or time.time(), prm["data"]))
             try:
-                client.send("Page.screencastFrameAck", sessionId=prm["sessionId"])
+                client.send_nowait("Page.screencastFrameAck", sessionId=prm["sessionId"])
             except Exception:
                 pass
+            if time.time() - started >= a.duration / 1000 or len(shots) >= max_frames:
+                break
         try:
             client.send("Page.stopScreencast")
         except Exception:
