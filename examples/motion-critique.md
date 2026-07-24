@@ -56,8 +56,6 @@ Every number below was sampled per animation frame in Chrome
 | Ambient driven by | JS, every frame | CSS/compositor |
 | Frame time p95 during entrance | 17.9ms | 17.1ms |
 
-![Measured motion curves](motion-curve.png)
-
 The eased card is **4.4× further along at 40ms** and done by 133ms while the linear
 card is still at 44%. That gap is what "snappy" is, expressed as a number rather than
 an adjective — and the linear curve's perfectly equal per-frame increments are the

@@ -1,0 +1,160 @@
+<!DOCTYPE html>
+<html lang="en"><head><meta charset="utf-8"><title>Signal — a chart that draws itself</title>
+<style>
+/* ── Direction: "Instrument" ─────────────────────────────────────────────
+   A readout, not a report. Deep teal-black ground; one electric mint that
+   belongs exclusively to the series — no other element in the frame is allowed
+   chroma, so colour reads as data. Type is a single grotesque at three sizes
+   with tabular figures throughout, because a number that reflows as it counts
+   is a number nobody trusts. Motion is the instrument warming up: rules settle
+   first, the trace draws left to right at reading speed with a live head, and
+   the headline figure counts to meet it.                                    */
+:root{
+  --ground:oklch(15% 0.022 220); --panel:oklch(18% 0.024 220);
+  --rule:oklch(28% 0.02 220); --text:oklch(95% 0.01 210);
+  --muted:oklch(68% 0.015 215); --faint:oklch(56% 0.014 215);
+  --mint:oklch(83% 0.155 168); --warn:oklch(78% 0.13 55);
+  --ease-out:cubic-bezier(0.22,1,0.36,1);
+  --draw:cubic-bezier(0.33,0.9,0.35,1);
+}
+*{margin:0;padding:0;box-sizing:border-box}
+html,body{height:100%;background:var(--ground);overflow:hidden}
+body{font-family:"Inter",system-ui,-apple-system,sans-serif;color:var(--text);
+  font-variant-numeric:tabular-nums;display:grid;place-content:center;height:100%}
+.card{width:860px;padding:38px 42px 30px;background:
+  radial-gradient(120% 140% at 12% 0%, oklch(19% 0.028 220) 0%, var(--ground) 62%);
+  border:1px solid var(--rule);border-radius:14px;position:relative;overflow:hidden}
+.hd{display:flex;justify-content:space-between;align-items:flex-start}
+.eyebrow{font:600 11px/1 ui-monospace,"SF Mono",monospace;letter-spacing:.19em;
+  text-transform:uppercase;color:var(--faint);opacity:0;
+  animation:rise 500ms var(--ease-out) 80ms both}
+.figure{font-size:62px;font-weight:650;letter-spacing:-.03em;line-height:1;margin-top:14px}
+.unit{font-size:26px;font-weight:500;color:var(--muted);letter-spacing:-.01em}
+.delta{display:inline-flex;align-items:center;gap:6px;margin-top:12px;
+  font:600 13px/1 "Inter",sans-serif;color:var(--mint);opacity:0;
+  animation:rise 520ms var(--ease-out) 1720ms both}
+.delta s{text-decoration:none;font-size:15px;line-height:1}
+.legend{text-align:right;opacity:0;animation:rise 520ms var(--ease-out) 200ms both}
+.legend b{display:block;font:600 12.5px/1.5 "Inter",sans-serif;color:var(--muted)}
+.legend span{font:500 11px/1.6 ui-monospace,monospace;color:var(--faint)}
+svg{display:block;margin-top:26px;overflow:visible}
+.grid line{stroke:var(--rule);stroke-width:1;opacity:0;
+  animation:fadeIn 460ms var(--ease-out) both}
+.grid line:nth-child(1){animation-delay:260ms}
+.grid line:nth-child(2){animation-delay:320ms}
+.grid line:nth-child(3){animation-delay:380ms}
+.grid line:nth-child(4){animation-delay:440ms}
+.base{stroke:var(--muted);stroke-width:1.25;opacity:0;
+  animation:fadeIn 420ms var(--ease-out) 240ms both}
+.ylab,.xlab{font:500 11.5px/1 ui-monospace,monospace;fill:var(--faint);opacity:0}
+.ylab{animation:fadeIn 400ms var(--ease-out) both}
+.xlab{animation:rise 420ms var(--ease-out) both}
+.head{fill:var(--mint);opacity:0}
+.peak text{font:600 11.5px/1 "Inter",sans-serif;fill:var(--warn)}
+.peak{opacity:0;animation:rise 460ms var(--ease-out) 1820ms both}
+.peak line{stroke:var(--warn);stroke-width:1;stroke-dasharray:2 3}
+@keyframes rise{from{opacity:0;transform:translateY(9px)}to{opacity:1;transform:none}}
+@keyframes fadeIn{to{opacity:1}}
+@media (prefers-reduced-motion:reduce){*{animation-duration:1ms!important}}
+</style></head><body>
+<div class="card">
+  <div class="hd">
+    <div>
+      <div class="eyebrow">Edge · requests per second</div>
+      <div class="figure"><span id="fig">0</span><span class="unit">k</span></div>
+      <div class="delta"><s>↑</s> 38% over the 24h window</div>
+    </div>
+    <div class="legend"><b>us-east · live</b><span>sampled 60s · p50</span></div>
+  </div>
+  <svg id="chart" width="776" height="248" viewBox="0 0 776 248"></svg>
+</div>
+<script>
+/* one series, 25 points: a working day that builds to an evening peak */
+const D=[18,17,16,16,18,23,31,38,44,49,53,56,58,57,59,63,68,74,81,88,94,97,92,84,76];
+const W=776,H=248,PADL=46,PADR=16,PADB=30,TOP=8;
+const x=i=>PADL+(W-PADL-PADR)*(i/(D.length-1));
+const y=v=>TOP+(H-TOP-PADB)*(1-v/100);
+const svg=document.getElementById('chart');
+const NS='http://www.w3.org/2000/svg';
+const el=(n,a)=>{const e=document.createElementNS(NS,n);for(const k in a)e.setAttribute(k,a[k]);return e;};
+
+/* Catmull-Rom -> cubic bezier: a smooth trace without the wobble of naive curves */
+function smooth(pts){
+  let d=`M${pts[0][0]},${pts[0][1]}`;
+  for(let i=0;i<pts.length-1;i++){
+    const p0=pts[i-1]||pts[i],p1=pts[i],p2=pts[i+1],p3=pts[i+2]||p2;
+    d+=`C${p1[0]+(p2[0]-p0[0])/6},${p1[1]+(p2[1]-p0[1])/6} `
+     + `${p2[0]-(p3[0]-p1[0])/6},${p2[1]-(p3[1]-p1[1])/6} ${p2[0]},${p2[1]}`;
+  }
+  return d;
+}
+const pts=D.map((v,i)=>[x(i),y(v)]);
+const dPath=smooth(pts);
+
+// gridlines + y labels
+const g=el('g',{class:'grid'});
+[25,50,75,100].forEach(v=>g.appendChild(el('line',{x1:PADL,y1:y(v),x2:W-PADR,y2:y(v)})));
+svg.appendChild(g);
+[25,50,75,100].forEach((v,i)=>{
+  const t=el('text',{x:PADL-12,y:y(v)+4,'text-anchor':'end',class:'ylab'});
+  t.textContent=v+'k'; t.style.animationDelay=(280+i*60)+'ms'; svg.appendChild(t);
+});
+svg.appendChild(el('line',{class:'base',x1:PADL,y1:y(0),x2:W-PADR,y2:y(0)}));
+
+// area under the trace, revealed by a wipe so it never simply appears
+const grad=el('linearGradient',{id:'fill',x1:0,y1:0,x2:0,y2:1});
+grad.appendChild(el('stop',{offset:'0%','stop-color':'oklch(83% 0.155 168)','stop-opacity':'0.30'}));
+grad.appendChild(el('stop',{offset:'100%','stop-color':'oklch(83% 0.155 168)','stop-opacity':'0'}));
+const defs=el('defs');defs.appendChild(grad);
+const clip=el('clipPath',{id:'wipe'});
+const cr=el('rect',{x:0,y:0,width:0,height:H});clip.appendChild(cr);defs.appendChild(clip);
+svg.appendChild(defs);
+const area=el('path',{d:`${dPath}L${x(D.length-1)},${y(0)}L${x(0)},${y(0)}Z`,
+  fill:'url(#fill)','clip-path':'url(#wipe)'});
+svg.appendChild(area);
+
+// the trace itself
+const line=el('path',{d:dPath,fill:'none',stroke:'var(--mint)','stroke-width':2.5,
+  'stroke-linecap':'round','stroke-linejoin':'round'});
+svg.appendChild(line);
+const head=el('circle',{class:'head',r:5.5});svg.appendChild(head);
+const halo=el('circle',{class:'head',r:11,fill:'var(--mint)','fill-opacity':0.18});
+svg.insertBefore(halo,head);
+
+// x labels
+['00:00','06:00','12:00','18:00','24:00'].forEach((s,i)=>{
+  const t=el('text',{x:x(i*6),y:H-8,'text-anchor':'middle',class:'xlab'});
+  t.textContent=s; t.style.animationDelay=(1500+i*55)+'ms'; svg.appendChild(t);
+});
+
+// peak annotation — direct label, no legend lookup required
+const pi=D.indexOf(Math.max(...D));
+const pk=el('g',{class:'peak'});
+pk.appendChild(el('line',{x1:x(pi),y1:y(D[pi])-14,x2:x(pi),y2:y(D[pi])-34}));
+const pt=el('text',{x:x(pi),y:y(D[pi])-42,'text-anchor':'middle'});
+pt.textContent='peak 97k · 20:00'; pk.appendChild(pt); svg.appendChild(pk);
+
+/* draw the trace with a live head, and count the figure to meet it */
+const len=line.getTotalLength();
+line.style.strokeDasharray=len; line.style.strokeDashoffset=len;
+const fig=document.getElementById('fig');
+const DUR=1500, LEAD=560;
+let t0=null;
+function ease(t){return 1-Math.pow(1-t,3);}
+function step(now){
+  if(t0===null)t0=now;
+  const raw=(now-t0-LEAD)/DUR;
+  if(raw>=0){
+    const t=Math.min(1,raw), e=ease(t);
+    line.style.strokeDashoffset=len*(1-e);
+    const p=line.getPointAtLength(len*e);
+    head.setAttribute('cx',p.x);head.setAttribute('cy',p.y);
+    halo.setAttribute('cx',p.x);halo.setAttribute('cy',p.y);
+    head.style.opacity=halo.style.opacity=t<1?1:0;   // the head retires at the end
+    cr.setAttribute('width',p.x+2);
+    fig.textContent=(D[0]+(D[D.length-1]-D[0])*e).toFixed(1);
+  }
+  if(raw<1)requestAnimationFrame(step);
+}
+requestAnimationFrame(step);
+</script></body></html>
