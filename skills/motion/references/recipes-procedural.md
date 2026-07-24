@@ -6,6 +6,9 @@ time t?", simulation asks "what forces act on this, and what happens next?" Simu
 interruptible, reactive, and endless; use it when motion must respond to unpredictable
 input, and use tweens when the path is known.
 
+Every recipe below has a runnable demo and a recorded GIF in the
+[gallery](https://github.com/jangles-byte/atelier/tree/main/examples/recipes).
+
 Everything here is engine-agnostic — the loop is `update(dt)` whether that's `rAF`,
 `_process`, `Update()`, or a `CADisplayLink`.
 

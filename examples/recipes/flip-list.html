@@ -1,0 +1,22 @@
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><title>List reorder (FLIP)</title>
+<link rel="stylesheet" href="_base.css"><style>ul{list-style:none;width:280px;display:flex;flex-direction:column;gap:8px}
+li{background:var(--panel);border:1px solid var(--rule);border-radius:9px;
+  padding:11px 14px;font-size:13px;display:flex;justify-content:space-between}
+li i{font-style:normal;color:var(--faint);font-family:ui-monospace,monospace;font-size:11.5px}</style></head><body>
+<div class="spec">reorder <b>300ms ease-out</b>, no stagger · insert staggers <b>40ms</b></div>
+<div class="stage"><ul id="u"></ul></div>
+<script src="_loop.js"></script><script>const u=$("#u");
+let items=[["payments","4127"],["auth-gateway","4126"],["indexer","4125"],["frontend","4124"]];
+function paint(){u.innerHTML="";items.forEach(([n,b])=>{const li=document.createElement("li");
+  li.innerHTML=`<span>${n}</span><i>#${b}</i>`;u.appendChild(li);});}
+function flip(mut){const kids=[...u.children];
+  const first=new Map(kids.map(e=>[e.textContent,e.getBoundingClientRect()]));
+  mut();
+  [...u.children].forEach(e=>{const a=first.get(e.textContent);if(!a)return;
+    const b=e.getBoundingClientRect(),dy=a.top-b.top;if(!dy)return;
+    e.animate([{transform:`translateY(${dy}px)`},{transform:"none"}],
+      {duration:300,easing:"cubic-bezier(0.22,1,0.36,1)"});});}
+paint();
+cycle([[600,()=>flip(()=>{items.unshift(items.pop());paint();})],
+       [1900,()=>flip(()=>{items.push(items.shift());items.reverse();paint();})],
+       [3200,()=>flip(()=>{items.sort((a,b)=>a[1]<b[1]?1:-1);paint();})]],4400)</script></body></html>

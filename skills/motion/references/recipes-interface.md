@@ -4,6 +4,9 @@ Production patterns for the interactions people actually build. Each recipe give
 question it answers, the values, code in 2–3 stacks, the reduced-motion variant, and
 the failure mode. Copy the values; they are tuned, not placeholders.
 
+Every recipe below has a runnable demo and a recorded GIF in the
+[gallery](https://github.com/jangles-byte/atelier/tree/main/examples/recipes) — watch the pattern before adapting it.
+
 Shared tokens assumed throughout (define once):
 
 ```css

@@ -1,0 +1,18 @@
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><title>Hit-stop</title>
+<link rel="stylesheet" href="_base.css"><style>.win{width:430px;height:200px;overflow:hidden;border-radius:12px;border:1px solid var(--rule);
+  background:oklch(13% .014 265);position:relative}
+.orb{position:absolute;top:78px;width:44px;height:44px;border-radius:50%;background:var(--accent)}
+.wall{position:absolute;top:56px;right:70px;width:12px;height:88px;border-radius:4px;background:var(--muted)}
+.flash{position:absolute;inset:0;background:oklch(98% .04 60);opacity:0}</style></head><body>
+<div class="spec">freeze <b>70ms</b> at 5% speed · actors only, camera keeps moving · the pause is the punch</div>
+<div class="stage"><div class="win">
+<div class="wall"></div><div class="orb" id="o"></div><div class="flash" id="f"></div></div></div>
+<script src="_loop.js"></script><script>const o=$("#o"),f=$("#f");let x=-50,v=0,freeze=0,last=performance.now();
+function loop(now){let dt=Math.min((now-last)/1000,1/30);last=now;
+  if(freeze>0){freeze-=dt;dt*=0.05;}          /* near-freeze, not a true stop */
+  x+=v*dt;o.style.transform=`translateX(${x}px)`;
+  if(v>0&&x>=286){v=-v*0.55;freeze=0.07;      /* 70ms hit-stop on contact */
+    f.animate([{opacity:.85},{opacity:0}],{duration:190,easing:"ease-out"});}
+  requestAnimationFrame(loop);}
+requestAnimationFrame(loop);
+cycle([[400,()=>{x=-50;v=520;}]],3000)</script></body></html>

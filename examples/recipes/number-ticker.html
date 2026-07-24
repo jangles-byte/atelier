@@ -1,0 +1,17 @@
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><title>Number ticker</title>
+<link rel="stylesheet" href="_base.css"><style>.big{font-size:64px;font-weight:680;letter-spacing:-.03em;transition:color 120ms var(--out)}
+.big.up{color:var(--ok)} .big.dn{color:var(--hot)}
+.lbl{font:500 11px/1 ui-monospace,monospace;letter-spacing:.16em;
+  text-transform:uppercase;color:var(--faint);margin-bottom:8px}</style></head><body>
+<div class="spec"><b>600ms easeOutQuint</b> · tabular-nums · <b>120ms</b> colour pulse on change</div>
+<div class="stage"><div style="text-align:center">
+<div class="lbl">Requests · last minute</div>
+<div class="big" id="n">0</div></div></div>
+<script src="_loop.js"></script><script>const n=$("#n");let cur=0;
+function to(v){const from=cur,t0=performance.now(),dur=600;
+  n.classList.toggle("up",v>from);n.classList.toggle("dn",v<from);
+  setTimeout(()=>n.classList.remove("up","dn"),320);
+  (function s(now){const t=Math.min(1,(now-t0)/dur),e=1-Math.pow(1-t,5);
+   n.textContent=Math.round(from+(v-from)*e).toLocaleString();
+   if(t<1)requestAnimationFrame(s);else cur=v;})(t0);}
+cycle([[300,()=>to(48210)],[1600,()=>to(51944)],[2900,()=>to(37502)]],4200)</script></body></html>

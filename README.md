@@ -59,7 +59,14 @@ still is not a render.**
 ## The motion skill
 
 The front door. Every recipe carries durations, curves, per-stack code, a reduced-motion
-variant, and the failure mode that ruins it.
+variant, and the failure mode that ruins it — **and a demo you can watch**.
+
+> ### → [Browse the recipe gallery](examples/recipes/)
+> Every recipe, running. Twenty self-contained demos, each autoplaying on a loop with its
+> actual values printed in the corner of the frame, so the GIF documents the recipe.
+> Modal, drawer, dropdown, toast stacks, accordion, tabs, FLIP reorder, drag with
+> snap-back, tickers, route transitions, scroll reveals, parallax, skeletons, progress,
+> spring damping ratios, particles, screen shake, hit-stop, chase cameras.
 
 | Reference | What's in it |
 |---|---|

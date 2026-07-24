@@ -1,0 +1,20 @@
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><title>Modal</title>
+<link rel="stylesheet" href="_base.css"><style>.back{position:fixed;inset:0;background:oklch(10% .01 265/.62);opacity:0;
+  transition:opacity 300ms var(--out);pointer-events:none}
+.back.on{opacity:1}
+.sheet{position:fixed;inset:0;margin:auto;width:280px;height:150px;background:var(--panel);
+  border:1px solid var(--rule);border-radius:12px;padding:18px;opacity:0;
+  transform:scale(.94) translateY(8px);transform-origin:50% 78%;
+  transition:opacity 300ms var(--out),transform 300ms var(--out)}
+.sheet.on{opacity:1;transform:none}
+.closing .back,.closing .sheet{transition-duration:240ms;transition-timing-function:var(--in)}</style></head><body>
+<div class="spec">enter <b>300ms ease-out</b> · exit <b>240ms ease-in</b> · origin at the trigger</div>
+<div class="stage"><button class="btn" id="t">Open dialog</button></div>
+<div class="back" id="bk"></div>
+<div class="sheet" id="sh"><h4>Discard build?</h4>
+<small>Artifacts from 4127 will be removed.</small>
+<div class="row" style="margin-top:22px"><button class="btn">Discard</button>
+<button class="btn ghost">Cancel</button></div></div>
+<script src="_loop.js"></script><script>const bk=$("#bk"),sh=$("#sh"),b=document.body;
+cycle([[400,()=>{b.classList.remove("closing");bk.classList.add("on");sh.classList.add("on")}],
+       [2100,()=>{b.classList.add("closing");bk.classList.remove("on");sh.classList.remove("on")}]],3400)</script></body></html>

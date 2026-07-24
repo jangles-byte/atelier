@@ -1,0 +1,20 @@
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><title>Progress & pending</title>
+<link rel="stylesheet" href="_base.css"><style>.bar{width:300px;height:6px;background:var(--panel);border-radius:99px;overflow:hidden}
+.fill{height:100%;background:var(--accent);transform-origin:left;transform:scaleX(0)}
+.ind{height:100%;width:36%;background:var(--accent);border-radius:99px;
+  animation:slide 1.2s var(--out) infinite}
+@keyframes slide{0%{transform:translateX(-110%)}100%{transform:translateX(380%)}}
+.btn{width:132px;display:grid;place-items:center}
+.sp{width:15px;height:15px;border:2px solid oklch(16% .02 265/.35);border-top-color:var(--ink);
+  border-radius:50%;animation:spin .7s linear infinite}
+@keyframes spin{to{transform:rotate(360deg)}}</style></head><body>
+<div class="spec">determinate = <b>linear</b> (honest) · indeterminate loops <b>1.2s</b> · button keeps its width</div>
+<div class="stage"><div style="display:grid;gap:20px;justify-items:center">
+<div class="bar"><div class="fill" id="f"></div></div>
+<div class="bar"><div class="ind"></div></div>
+<button class="btn" id="b">Deploy</button></div></div>
+<script src="_loop.js"></script><script>const f=$("#f"),b=$("#b");
+cycle([[300,()=>{b.innerHTML='<span class="sp"></span>';
+        f.style.transition="transform 2200ms linear";f.style.transform="scaleX(1)"}],
+       [2600,()=>{b.textContent="Deployed"}],
+       [3400,()=>{b.textContent="Deploy";f.style.transition="none";f.style.transform="scaleX(0)"}]],4400)</script></body></html>

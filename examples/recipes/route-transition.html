@@ -1,0 +1,22 @@
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><title>Route transition</title>
+<link rel="stylesheet" href="_base.css"><style>.view{position:absolute;inset:0;background:var(--panel);border:1px solid var(--rule);
+  border-radius:12px;padding:20px;display:grid;align-content:start;gap:8px}
+.frame{position:relative;width:420px;height:200px;overflow:hidden;border-radius:12px}
+.crumb{font:500 11px/1 ui-monospace,monospace;letter-spacing:.14em;
+  text-transform:uppercase;color:var(--faint)}</style></head><body>
+<div class="spec">old out <b>180ms ease-in</b> · new in <b>260ms ease-out</b> · direction = depth</div>
+<div class="stage"><div class="frame" id="f">
+<div class="view" id="a"><div class="crumb">/ deployments</div>
+<h4 style="font-size:19px">All deployments</h4>
+<small>4127 · 4126 · 4125 · 4124</small></div>
+<div class="view" id="b" style="display:none"><div class="crumb">/ deployments / 4127</div>
+<h4 style="font-size:19px">Build 4127</h4><small>us-east · shipped 41s ago</small></div>
+</div></div>
+<script src="_loop.js"></script><script>const a=$("#a"),b=$("#b");
+const OUT={duration:180,easing:"cubic-bezier(0.55,0,1,0.45)",fill:"both"};
+const IN={duration:260,easing:"cubic-bezier(0.22,1,0.36,1)",fill:"both"};
+function go(from,to,dir){ /* drill-in slides left, back slides right */
+  from.animate([{opacity:1,transform:"none"},{opacity:0,transform:`translateX(${-26*dir}px)`}],OUT);
+  setTimeout(()=>{from.style.display="none";to.style.display="grid";
+    to.animate([{opacity:0,transform:`translateX(${34*dir}px)`},{opacity:1,transform:"none"}],IN);},130);}
+cycle([[600,()=>go(a,b,1)],[2300,()=>go(b,a,-1)]],3800)</script></body></html>

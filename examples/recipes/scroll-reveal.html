@@ -1,0 +1,25 @@
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><title>Scroll reveal</title>
+<link rel="stylesheet" href="_base.css"><style>.scroller{width:400px;height:250px;overflow:hidden;position:relative}
+.inner{padding-top:250px}
+.blk{background:var(--panel);border:1px solid var(--rule);border-radius:10px;
+  padding:15px;margin-bottom:14px;opacity:0;transform:translateY(16px)}
+.blk.in{opacity:1;transform:none;transition:opacity 460ms var(--out),transform 460ms var(--out)}</style></head><body>
+<div class="spec">travel <b>16px</b> · <b>460ms ease-out</b> · fires once · <b>40ms</b> stagger</div>
+<div class="stage"><div class="scroller" id="s"><div class="inner">
+<div class="blk"><h4>Edge cache</h4><small>94.2% hit rate</small></div>
+<div class="blk"><h4>Origin shield</h4><small>2 regions</small></div>
+<div class="blk"><h4>Purge queue</h4><small>empty</small></div>
+<div class="blk"><h4>TLS</h4><small>renewed 3d ago</small></div>
+</div></div></div>
+<script src="_loop.js"></script><script>const s=$("#s"),blks=$$(".blk");
+const io=new IntersectionObserver(es=>es.forEach(e=>{
+  if(!e.isIntersecting)return;
+  const i=blks.indexOf(e.target);
+  setTimeout(()=>e.target.classList.add("in"),(i%2)*40);
+  io.unobserve(e.target);}),{root:s,rootMargin:"0px 0px -12% 0px"});
+blks.forEach(b=>io.observe(b));
+function scrollTo(y,ms){const from=s.scrollTop,t0=performance.now();
+  (function st(n){const t=Math.min(1,(n-t0)/ms),e=1-Math.pow(1-t,3);
+   s.scrollTop=from+(y-from)*e;if(t<1)requestAnimationFrame(st);})(t0);}
+cycle([[500,()=>scrollTo(330,1500)],[2600,()=>{s.scrollTop=0;
+  blks.forEach(b=>{b.classList.remove("in");io.observe(b);});}]],3800)</script></body></html>

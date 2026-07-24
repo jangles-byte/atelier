@@ -1,0 +1,19 @@
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><title>Drawer</title>
+<link rel="stylesheet" href="_base.css"><style>.dr{position:fixed;top:0;left:0;bottom:0;width:230px;background:var(--panel);
+  border-right:1px solid var(--rule);padding:20px;transform:translateX(-100%);
+  transition:transform 450ms var(--out)}
+.dr.on{transform:none}
+.dr.closing{transition-duration:360ms;transition-timing-function:var(--in)}
+.dr .i{padding:9px 0;color:var(--muted);font-size:13px;border-bottom:1px solid var(--rule)}
+.scrim{position:fixed;inset:0;background:oklch(10% .01 265/.5);opacity:0;
+  transition:opacity 450ms var(--out)}
+.scrim.on{opacity:1}</style></head><body>
+<div class="spec">open <b>450ms ease-out</b> · close <b>360ms ease-in</b> · edge-anchored</div>
+<div class="stage"><button class="btn ghost" id="t">≡ Menu</button></div>
+<div class="scrim" id="sc"></div>
+<div class="dr" id="dr"><h4 style="margin-bottom:14px">Workspace</h4>
+<div class="i">Deployments</div><div class="i">Analytics</div>
+<div class="i">Logs</div><div class="i">Settings</div></div>
+<script src="_loop.js"></script><script>const dr=$("#dr"),sc=$("#sc");
+cycle([[400,()=>{dr.classList.remove("closing");dr.classList.add("on");sc.classList.add("on")}],
+       [2200,()=>{dr.classList.add("closing");dr.classList.remove("on");sc.classList.remove("on")}]],3600)</script></body></html>

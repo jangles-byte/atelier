@@ -1,0 +1,27 @@
+/* shared stage for every recipe demo — keeps each file to its motion only */
+:root{
+  --bg:oklch(16% 0.012 265); --panel:oklch(21% 0.014 265); --raise:oklch(25% 0.016 265);
+  --rule:oklch(30% 0.016 265); --text:oklch(94% 0.008 265); --muted:oklch(70% 0.013 265);
+  --faint:oklch(56% 0.013 265); --accent:oklch(76% 0.14 265); --ink:oklch(16% 0.02 265);
+  --ok:oklch(78% 0.13 155); --warn:oklch(80% 0.13 60); --hot:oklch(70% 0.17 20);
+  --out:cubic-bezier(0.22,1,0.36,1); --in:cubic-bezier(0.55,0,1,0.45);
+  --back:cubic-bezier(0.34,1.56,0.64,1);
+  color-scheme:dark;
+}
+*{margin:0;padding:0;box-sizing:border-box}
+html,body{height:100%;overflow:hidden;background:var(--bg)}
+body{font:14px/1.5 "Inter",system-ui,sans-serif;color:var(--text);
+  display:grid;place-content:center;font-variant-numeric:tabular-nums}
+.stage{width:520px;height:250px;position:relative;display:grid;
+  place-content:center;justify-items:center}
+.spec{position:fixed;top:16px;left:20px;font:500 11px/1 ui-monospace,monospace;
+  letter-spacing:.13em;text-transform:uppercase;color:var(--faint)}
+.spec b{color:var(--accent);font-weight:600}
+.btn{font:600 13px/1 "Inter",sans-serif;height:38px;padding:0 18px;border:none;
+  border-radius:8px;background:var(--accent);color:var(--ink);cursor:pointer}
+.ghost{background:transparent;color:var(--muted);border:1px solid var(--rule)}
+.card{background:var(--panel);border:1px solid var(--rule);border-radius:10px;padding:14px 16px}
+.row{display:flex;align-items:center;gap:10px}
+.dot{width:8px;height:8px;border-radius:50%;background:var(--accent)}
+h4{font-size:13.5px;font-weight:600}
+small{font-size:12px;color:var(--faint)}

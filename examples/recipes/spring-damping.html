@@ -1,0 +1,23 @@
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><title>Spring damping ratios</title>
+<link rel="stylesheet" href="_base.css"><style>.lane{display:grid;grid-template-columns:64px 1fr;align-items:center;gap:14px;
+  width:430px;margin-bottom:16px}
+.lane b{font:600 11px/1 ui-monospace,monospace;color:var(--faint);letter-spacing:.08em}
+.rail{position:relative;height:34px;background:var(--panel);border:1px solid var(--rule);
+  border-radius:8px}
+.pip{position:absolute;top:6px;left:6px;width:20px;height:20px;border-radius:6px;background:var(--accent)}
+.lane:nth-child(1) .pip{background:var(--warn)}
+.lane:nth-child(3) .pip{background:var(--muted)}</style></head><body>
+<div class="spec">same stiffness, three ζ · <b>0.58</b> bounces · <b>0.95</b> settles · <b>1.4</b> crawls</div>
+<div class="stage"><div>
+<div class="lane"><b>ζ 0.58</b><div class="rail"><div class="pip" id="p0"></div></div></div>
+<div class="lane"><b>ζ 0.95</b><div class="rail"><div class="pip" id="p1"></div></div></div>
+<div class="lane"><b>ζ 1.40</b><div class="rail"><div class="pip" id="p2"></div></div></div>
+</div></div>
+<script src="_loop.js"></script><script>const S=[{k:300,c:20,el:$("#p0")},{k:400,c:38,el:$("#p1")},{k:300,c:48,el:$("#p2")}];
+S.forEach(s=>{s.x=0;s.v=0});let target=0,last=performance.now();
+function loop(now){let dt=Math.min((now-last)/1000,1/30);last=now;
+  for(const s of S){s.v+=(-s.k*(s.x-target)-s.c*s.v)*dt;s.x+=s.v*dt;
+    s.el.style.transform=`translateX(${s.x.toFixed(2)}px)`;}
+  requestAnimationFrame(loop);}
+requestAnimationFrame(loop);
+cycle([[400,()=>target=330],[2200,()=>target=0]],3800)</script></body></html>

@@ -4,6 +4,9 @@ Motion whose job is *orientation* — keeping the user's mental model intact whi
 screen changes. The governing rule: **carry something across the boundary.** A transition
 where nothing persists is just two screens with a fade between them.
 
+Every recipe below has a runnable demo and a recorded GIF in the
+[gallery](https://github.com/jangles-byte/atelier/tree/main/examples/recipes).
+
 ## Contents
 1. [Route / page transition](#1-route--page-transition) ·
 2. [Shared element / hero](#2-shared-element--hero) ·

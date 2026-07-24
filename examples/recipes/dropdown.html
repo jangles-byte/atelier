@@ -1,0 +1,16 @@
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><title>Dropdown</title>
+<link rel="stylesheet" href="_base.css"><style>.wrap{position:relative}
+.menu{position:absolute;top:46px;left:0;width:180px;background:var(--panel);
+  border:1px solid var(--rule);border-radius:10px;padding:6px;
+  transform-origin:top left;opacity:0;transform:scale(.96) translateY(-4px);
+  transition:opacity 150ms var(--out),transform 150ms var(--out)}
+.menu.on{opacity:1;transform:none}
+.menu div{padding:8px 10px;border-radius:6px;font-size:13px;color:var(--muted)}
+.menu div.sel{background:var(--raise);color:var(--text)}</style></head><body>
+<div class="spec"><b>150ms</b> both ways · origin at the anchored edge · no stagger</div>
+<div class="stage"><div class="wrap">
+<button class="btn ghost" id="t">Environment ▾</button>
+<div class="menu" id="m"><div class="sel">Production</div><div>Staging</div>
+<div>Preview</div><div>Local</div></div></div></div>
+<script src="_loop.js"></script><script>const m=$("#m");
+cycle([[350,()=>m.classList.add("on")],[1750,()=>m.classList.remove("on")]],2800)</script></body></html>

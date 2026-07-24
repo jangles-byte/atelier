@@ -1,0 +1,23 @@
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><title>Parallax</title>
+<link rel="stylesheet" href="_base.css"><style>.win{width:420px;height:230px;overflow:hidden;position:relative;border-radius:12px;
+  border:1px solid var(--rule);background:oklch(13% .02 265)}
+.lyr{position:absolute;inset:-40px;will-change:transform}
+.l1{background:radial-gradient(60% 50% at 30% 40%,oklch(40% .13 285/.55),transparent 70%)}
+.l2{background:radial-gradient(50% 45% at 72% 62%,oklch(52% .14 200/.5),transparent 70%)}
+.fg{position:relative;padding:26px;z-index:2}
+.fg h4{font-size:22px;letter-spacing:-.02em}</style></head><body>
+<div class="spec">back layer <b>18%</b> of scroll · transforms only · off under reduced-motion</div>
+<div class="stage"><div class="win" id="w">
+<div class="lyr l1" id="a"></div><div class="lyr l2" id="b"></div>
+<div class="fg"><h4>Edge network</h4><small>38 points of presence</small></div>
+</div></div>
+<script src="_loop.js"></script><script>const a=$("#a"),b=$("#b"),fg=document.querySelector(".fg");
+function at(p){ /* p 0..1 of a virtual scroll */
+  a.style.transform=`translateY(${-p*42}px)`;      /* 18% */
+  b.style.transform=`translateY(${-p*74}px)`;      /* 31% */
+  fg.style.transform=`translateY(${-p*120}px)`;}   /* content: full rate */
+let raf;function run(to,ms){cancelAnimationFrame(raf);const t0=performance.now(),from=cur;
+  (function s(n){const t=Math.min(1,(n-t0)/ms),e=t<.5?2*t*t:1-Math.pow(-2*t+2,2)/2;
+   cur=from+(to-from)*e;at(cur);if(t<1)raf=requestAnimationFrame(s);})(t0);}
+let cur=0;at(0);
+cycle([[400,()=>run(1,1700)],[2500,()=>run(0,1200)]],4200)</script></body></html>

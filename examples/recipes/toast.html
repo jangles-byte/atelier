@@ -1,0 +1,25 @@
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><title>Toast stack</title>
+<link rel="stylesheet" href="_base.css"><style>.stack{position:fixed;right:24px;bottom:24px;display:flex;flex-direction:column;gap:10px;
+  align-items:flex-end}
+.t{background:var(--panel);border:1px solid var(--rule);border-left:2px solid var(--ok);
+  border-radius:9px;padding:11px 15px;width:230px;font-size:13px;
+  box-shadow:0 10px 24px -10px rgb(0 0 0/.6)}
+.t small{display:block;margin-top:2px}</style></head><body>
+<div class="spec">enter <b>250ms</b> · exit <b>200ms</b> · survivors FLIP up <b>220ms</b></div>
+<div class="stage"><small>toasts arrive, then the oldest leaves and the rest close the gap</small></div>
+<div class="stack" id="s"></div>
+<script src="_loop.js"></script><script>const s=$("#s"),MSG=[["Deployed 4127","us-east · 41s"],["Cache purged","12,904 keys"],["Certs renewed","expires in 90d"]];
+function add(i){const d=document.createElement("div");d.className="t";
+  d.innerHTML=`<b>${MSG[i][0]}</b><small>${MSG[i][1]}</small>`;s.appendChild(d);
+  d.animate([{opacity:0,transform:"translateY(16px)"},{opacity:1,transform:"none"}],
+    {duration:250,easing:"cubic-bezier(0.22,1,0.36,1)",fill:"both"});}
+function dropOldest(){const dead=s.firstElementChild;if(!dead)return;
+  const first=[...s.children].map(e=>e.getBoundingClientRect().top);
+  dead.animate([{opacity:1,transform:"none"},{opacity:0,transform:"translateX(18px)"}],
+    {duration:200,easing:"cubic-bezier(0.55,0,1,0.45)",fill:"both"}).onfinish=()=>{
+    dead.remove();
+    [...s.children].forEach((e,i)=>{const dy=first[i+1]-e.getBoundingClientRect().top;
+      if(dy)e.animate([{transform:`translateY(${dy}px)`},{transform:"none"}],
+        {duration:220,easing:"cubic-bezier(0.22,1,0.36,1)"});});};}
+cycle([[200,()=>add(0)],[600,()=>add(1)],[1000,()=>add(2)],
+       [2100,dropOldest],[2700,dropOldest],[3300,dropOldest]],4400)</script></body></html>

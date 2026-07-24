@@ -1,0 +1,22 @@
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><title>Particles</title>
+<link rel="stylesheet" href="_base.css"><style>canvas{border-radius:12px;background:oklch(13% .014 265);border:1px solid var(--rule)}</style></head><body>
+<div class="spec">pooled <b>256</b> · vary speed, size and life · quadratic fade · cone toward the normal</div>
+<div class="stage"><canvas id="c" width="460" height="220"></canvas></div>
+<script src="_loop.js"></script><script>const c=$("#c"),x=c.getContext("2d"),W=460,H=220;
+const P=Array.from({length:256},()=>({a:false}));
+function emit(px,py,n,dir){for(const p of P){if(n<=0)break;if(p.a)continue;
+  const ang=dir+(Math.random()-.5)*1.2,sp=70+Math.random()*260;
+  Object.assign(p,{a:true,x:px,y:py,vx:Math.cos(ang)*sp,vy:Math.sin(ang)*sp,
+    l:0,m:.4+Math.random()*.55,r:1.4+Math.random()*3.4,h:Math.random()<.3?60:265});n--;}}
+let last=performance.now();
+function loop(now){const dt=Math.min((now-last)/1000,1/30);last=now;
+  x.clearRect(0,0,W,H);
+  for(const p of P){if(!p.a)continue;p.l+=dt;if(p.l>=p.m){p.a=false;continue;}
+    p.vy+=620*dt;const d=Math.pow(.16,dt);p.vx*=d;p.vy*=d;p.x+=p.vx*dt;p.y+=p.vy*dt;
+    const u=p.l/p.m,al=(1-u)*(1-u);
+    x.globalAlpha=al;x.fillStyle=`oklch(${72+p.h*.02}% .16 ${p.h})`;
+    x.beginPath();x.arc(p.x,p.y,p.r*(1-u*.55),0,6.283);x.fill();}
+  x.globalAlpha=1;requestAnimationFrame(loop);}
+requestAnimationFrame(loop);
+cycle([[500,()=>emit(150,120,30,-0.6)],[1500,()=>emit(320,140,30,-2.4)],
+       [2500,()=>emit(230,100,44,-1.57)]],3800)</script></body></html>

@@ -1,0 +1,27 @@
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><title>Screen shake</title>
+<link rel="stylesheet" href="_base.css"><style>.win{width:420px;height:210px;overflow:hidden;border-radius:12px;border:1px solid var(--rule);
+  background:oklch(13% .014 265);display:grid;place-items:center}
+.world{display:grid;place-items:center;gap:10px}
+.blk{width:74px;height:74px;border-radius:12px;background:var(--accent)}
+.blk.hit{background:oklch(96% .05 60)}
+.tr{width:200px;height:4px;background:var(--panel);border-radius:9px;overflow:hidden;margin-top:14px}
+.tr i{display:block;height:100%;background:var(--hot);width:0%}</style></head><body>
+<div class="spec">trauma decays <b>1.4/s</b> · amplitude ∝ <b>trauma²</b> · smooth noise, never random</div>
+<div class="stage"><div><div class="win"><div class="world" id="w">
+<div class="blk" id="b"></div></div></div>
+<div class="tr"><i id="t"></i></div></div></div>
+<script src="_loop.js"></script><script>const w=$("#w"),b=$("#b"),tb=$("#t");
+const perm=Array.from({length:256},()=>Math.random());
+const nz=v=>{const i=Math.floor(v),f=v-i,s=f*f*(3-2*f);
+  return perm[i&255]*(1-s)+perm[(i+1)&255]*s;};
+let trauma=0,t=0,last=performance.now();
+function loop(now){const dt=Math.min((now-last)/1000,1/30);last=now;t+=dt;
+  trauma=Math.max(0,trauma-dt*1.4);const s=trauma*trauma;
+  w.style.transform=`translate(${(nz(t*26)*2-1)*17*s}px,${(nz(t*26+50)*2-1)*17*s}px)
+    rotate(${(nz(t*26+90)*2-1)*1.7*s}deg)`;
+  tb.style.width=(trauma*100).toFixed(0)+"%";
+  requestAnimationFrame(loop);}
+requestAnimationFrame(loop);
+function hit(a){trauma=Math.min(1,trauma+a);b.classList.add("hit");
+  setTimeout(()=>b.classList.remove("hit"),70);}
+cycle([[500,()=>hit(0.25)],[1500,()=>hit(0.45)],[2600,()=>hit(0.85)]],4200)</script></body></html>

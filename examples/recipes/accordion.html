@@ -1,0 +1,18 @@
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><title>Accordion</title>
+<link rel="stylesheet" href="_base.css"><style>.acc{width:330px}
+.hd{display:flex;justify-content:space-between;align-items:center;padding:13px 15px;
+  background:var(--panel);border:1px solid var(--rule);border-radius:9px;cursor:pointer}
+.chev{transition:transform 300ms var(--out) 80ms;color:var(--faint)}
+.open .chev{transform:rotate(180deg)}
+.panel{display:grid;grid-template-rows:0fr;transition:grid-template-rows 300ms var(--out)}
+.open + .panel{grid-template-rows:1fr}
+.panel > div{overflow:hidden}
+.panel p{padding:13px 15px 0;color:var(--muted);font-size:13px}</style></head><body>
+<div class="spec">grid-template-rows <b>0fr → 1fr</b> · <b>300ms ease-out</b> · chevron trails 80ms</div>
+<div class="stage"><div class="acc">
+<div class="hd" id="h"><h4>Build configuration</h4><span class="chev">▾</span></div>
+<div class="panel"><div><p>Node 22 · pnpm · turbo cache enabled. Output is written to
+<code>dist/</code> and uploaded to the edge on green.</p></div></div>
+</div></div>
+<script src="_loop.js"></script><script>const h=$("#h");
+cycle([[400,()=>h.classList.add("open")],[2200,()=>h.classList.remove("open")]],3600)</script></body></html>
