@@ -1,0 +1,14 @@
+{
+  "name": "atelier",
+  "displayName": "Atelier",
+  "version": "0.1.0",
+  "description": "Elite art-direction skills for Claude Code: design direction, OKLCH color systems, typography & layout, motion, structured critique, and frame-rate craft — principles first, any stack second.",
+  "author": {
+    "name": "Atelier contributors",
+    "url": "https://github.com/jangles-byte/atelier"
+  },
+  "homepage": "https://github.com/jangles-byte/atelier",
+  "repository": "https://github.com/jangles-byte/atelier",
+  "license": "MIT",
+  "keywords": ["design", "ui", "color", "typography", "motion", "animation", "critique", "performance", "skills"]
+}

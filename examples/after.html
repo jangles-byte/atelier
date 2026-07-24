@@ -1,0 +1,167 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Driftlog — a log of your engineering day</title>
+<style>
+  /* Warm Terminal — see DESIGN.md. Tokens first; OKLCH is the source of truth. */
+  :root {
+    --bg:        oklch(18% 0.015 75);
+    --bg-raised: oklch(21% 0.016 75);
+    --text:      oklch(92% 0.010 75);
+    --text-muted:oklch(68% 0.012 75);
+    --text-faint:oklch(66% 0.012 75); /* 13px text: must clear 4.5:1 on --bg-raised too */
+    --border:    oklch(32% 0.020 75);
+    --accent:    oklch(78% 0.140 75);
+    --accent-ink:oklch(16% 0.020 75);
+    --ok:        oklch(75% 0.120 150);
+    --mono: "JetBrains Mono", ui-monospace, "SF Mono", Menlo, monospace;
+    --sans: "Inter", -apple-system, system-ui, sans-serif;
+    --ease-out: cubic-bezier(0.22, 1, 0.36, 1);
+    /* spacing ladder */
+    --s2: 8px; --s3: 12px; --s4: 16px; --s5: 24px; --s6: 32px;
+    --s7: 48px; --s8: 64px; --s10: 128px;
+    color-scheme: dark;
+  }
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body {
+    background: var(--bg); color: var(--text);
+    font-family: var(--sans); font-size: 16px; line-height: 1.55;
+  }
+  .page {
+    max-width: 880px; margin: 0 auto; padding: var(--s8) var(--s5);
+    border-left: 1px solid var(--border);
+  }
+  /* log-line section headers — the signature move */
+  .logline {
+    font-family: var(--mono); font-size: 13px; color: var(--text-faint);
+    display: flex; gap: var(--s3); align-items: baseline;
+    margin-left: calc(-1 * var(--s5) - 1px);
+    padding-left: var(--s5); border-left: 2px solid var(--accent);
+  }
+  .logline .branch { color: var(--text-muted); }
+  section + section { margin-top: var(--s10); }
+
+  /* hero */
+  .hero { margin-top: var(--s7); }
+  .prompt {
+    font-family: var(--mono); font-weight: 700;
+    font-size: clamp(40px, 7vw, 72px); letter-spacing: -0.02em;
+    line-height: 1.05; margin-top: var(--s4);
+  }
+  .prompt .sigil { color: var(--accent); }
+  .cursor {
+    display: inline-block; width: 0.55em; height: 1em;
+    background: var(--accent); vertical-align: text-bottom;
+    animation: blink 1.06s steps(1) infinite;
+  }
+  @keyframes blink { 50% { opacity: 0; } }
+  .lede {
+    max-width: 60ch; color: var(--text-muted);
+    font-size: 18px; margin-top: var(--s5);
+  }
+  .actions { display: flex; gap: var(--s5); align-items: center; margin-top: var(--s6); }
+  .btn {
+    font-family: var(--mono); font-size: 15px; font-weight: 700;
+    height: 44px; padding: 0 var(--s5); border-radius: 2px;
+    background: var(--accent); color: var(--accent-ink);
+    border: 1px solid var(--accent); cursor: pointer;
+    transition: background-color 150ms var(--ease-out), color 150ms var(--ease-out);
+  }
+  .btn:hover { background: oklch(84% 0.13 75); }
+  .link {
+    font-family: var(--mono); font-size: 14px; color: var(--text-muted);
+    text-decoration: underline; text-underline-offset: 4px;
+    transition: color 150ms var(--ease-out);
+  }
+  .link:hover { color: var(--text); }
+  :focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+
+  /* features as log entries */
+  .entry { margin-top: var(--s7); max-width: 62ch; }
+  .entry h3 {
+    font-family: var(--mono); font-size: 18px; font-weight: 700;
+    letter-spacing: -0.01em; margin-top: var(--s4);
+  }
+  .entry p { color: var(--text-muted); font-size: 15px; margin-top: var(--s2); }
+  .entry .meta { font-family: var(--mono); font-size: 13px; color: var(--text-faint); }
+
+  /* sample log window */
+  .window {
+    margin-top: var(--s6); background: var(--bg-raised);
+    border: 1px solid var(--border); border-radius: 2px;
+    font-family: var(--mono); font-size: 13.5px; line-height: 1.7;
+    padding: var(--s4) var(--s5); overflow-x: auto;
+  }
+  .window .t { color: var(--text-faint); }
+  .window .ok { color: var(--ok); }
+  .window .hl { color: var(--accent); }
+
+  /* closing prompt */
+  .close { padding-bottom: var(--s8); }
+  .close .prompt { font-size: clamp(24px, 3.5vw, 36px); }
+
+  .status { display: inline-flex; align-items: center; gap: var(--s2);
+    font-family: var(--mono); font-size: 13px; color: var(--text-muted); }
+  .dot { width: 8px; height: 8px; border-radius: 50%; background: var(--ok); }
+
+  @media (prefers-reduced-motion: reduce) {
+    .cursor { animation: none; }
+    * { transition-duration: 0.01ms !important; }
+  }
+</style>
+</head>
+<body>
+<div class="page">
+  <section class="hero">
+    <div class="logline"><span>09:41:07</span><span class="branch">~/work</span>
+      <span class="status"><span class="dot"></span>recording</span></div>
+    <h1 class="prompt"><span class="sigil">$</span> driftlog<span class="cursor"></span></h1>
+    <p class="lede">A log of your engineering day, kept for you. Driftlog sits in
+    your terminal and your git hooks, and writes the notebook you were always
+    going to start keeping next week.</p>
+    <div class="actions">
+      <button class="btn">Start logging</button>
+      <a class="link" href="#docs">read the docs</a>
+    </div>
+  </section>
+
+  <section>
+    <div class="logline"><span>09:41:12</span><span class="branch">feature/capture</span></div>
+    <div class="entry">
+      <span class="meta">capture · 40ms median</span>
+      <h3>Log entries in seconds</h3>
+      <p>One command, no context switch. Driftlog timestamps the entry, attaches
+      the branch and dirty files, and returns your prompt before you notice it left.</p>
+    </div>
+    <div class="entry">
+      <span class="meta">hooks · git, zsh, vscode</span>
+      <h3>Your tools already write it</h3>
+      <p>Commits, test runs, and deploys become entries on their own. The log
+      fills itself; you only add the sentences that explain why.</p>
+    </div>
+    <div class="entry">
+      <span class="meta">recall · driftlog why</span>
+      <h3>Answers from your own history</h3>
+      <p><code>driftlog why redis</code> replays every decision you logged about
+      redis, newest first, with the diffs that went with them.</p>
+    </div>
+    <div class="window" role="img" aria-label="Sample driftlog output">
+      <div><span class="t">14:02:33</span> test: payments-service <span class="ok">✓ 212 passed</span></div>
+      <div><span class="t">14:07:10</span> note: <span class="hl">switched queue to batched acks — retry storm on Friday</span></div>
+      <div><span class="t">14:31:58</span> deploy: payments-service → prod <span class="ok">✓</span></div>
+    </div>
+  </section>
+
+  <section class="close">
+    <div class="logline"><span>17:59:41</span><span class="branch">~/work</span></div>
+    <h2 class="prompt"><span class="sigil">$</span> driftlog init</h2>
+    <div class="actions">
+      <button class="btn">Start logging</button>
+      <span class="status">free while in beta</span>
+    </div>
+  </section>
+</div>
+</body>
+</html>

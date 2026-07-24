@@ -1,0 +1,22 @@
+{
+  "name": "atelier",
+  "owner": {
+    "name": "Atelier contributors",
+    "url": "https://github.com/jangles-byte/atelier"
+  },
+  "metadata": {
+    "description": "Elite art-direction skills for Claude Code",
+    "version": "0.1.0"
+  },
+  "plugins": [
+    {
+      "name": "atelier",
+      "source": "./",
+      "description": "Six skills that make Claude design like a senior art director in any medium: design-direction, color (OKLCH), typography-and-layout, motion, critique, performance-craft.",
+      "version": "0.1.0",
+      "author": { "name": "Atelier contributors" },
+      "license": "MIT",
+      "keywords": ["design", "ui", "color", "typography", "motion", "critique", "performance"]
+    }
+  ]
+}
