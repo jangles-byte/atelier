@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<html><head><meta charset="utf-8"><title>capture</title>
+<style>
+  :root {
+    --bg: oklch(17% 0.012 265); --raised: oklch(21% 0.014 265);
+    --text: oklch(93% 0.008 265); --muted: oklch(68% 0.012 265);
+    --border: oklch(30% 0.016 265); --accent: oklch(72% 0.15 265);
+    color-scheme: dark;
+  }
+  * { margin:0; padding:0; box-sizing:border-box; }
+  body { background: var(--bg); color: var(--text); width:900px; height:516px;
+    font: 15px/1.5 "Inter", system-ui, sans-serif; padding: 28px 32px 44px;
+    display:grid; grid-template-columns:1fr 1fr; gap:40px;
+    align-content:start; }
+  .col > .hd { display:flex; align-items:baseline; gap:8px; padding-bottom:10px;
+    border-bottom:1px solid var(--border); margin-bottom:18px; }
+  .hd b { font-size:14px; font-weight:650; }
+  .hd span { font:500 11.5px ui-monospace,monospace; color:var(--muted); }
+  .hd .tagA { color: var(--accent); }
+  ul { list-style:none; display:flex; flex-direction:column; gap:12px; }
+  li { position:relative; background:var(--raised); border:1px solid var(--border);
+    border-radius:8px; padding:14px 16px; opacity:0; }
+  li h3 { font-size:14px; font-weight:600; }
+  li p { font-size:12.5px; color:var(--muted); margin-top:2px; }
+  li .tag { position:absolute; top:14px; right:16px;
+    font:500 11px ui-monospace,monospace; color:var(--muted); }
+
+  /* frozen frames: paused animation + negative delay = exact frame at time t */
+  @keyframes inBefore {            /* 300ms linear, translateY(20px) */
+    from { transform: translateY(20px); opacity: 0 }
+    to   { transform: translateY(0);    opacity: 1 }
+  }
+  @keyframes inAfter {             /* 260ms ease-out, translateY(14px) + scale */
+    from { transform: translateY(14px) scale(0.985); opacity: 0 }
+    to   { transform: translateY(0) scale(1);        opacity: 1 }
+  }
+  .before li { animation: inBefore 300ms linear paused both; }
+  .after  li { animation: inAfter 260ms cubic-bezier(0.22,1,0.36,1) paused both; }
+  .clock { position:fixed; left:32px; bottom:14px; font:500 11.5px ui-monospace,monospace;
+    color:var(--muted); }
+</style></head>
+<body>
+  <div class="col before">
+    <div class="hd"><b>Before</b><span>300ms linear · no stagger</span></div>
+    <ul id="a"></ul>
+  </div>
+  <div class="col after">
+    <div class="hd"><b>After</b><span class="tagA">260ms ease-out · 40ms stagger</span></div>
+    <ul id="b"></ul>
+  </div>
+  <div class="clock" id="clock"></div>
+<script>
+const ITEMS = [["payments-service","staging → prod","4127"],["auth-gateway","canary 10%","4126"],
+  ["search-indexer","rebuild shards","4125"],["web-frontend","assets + SSR","4124"],
+  ["notifier","hotfix","4123"]];
+const t = +(new URLSearchParams(location.search).get("t") || 0);
+const clamp = (v,lo,hi) => Math.max(lo, Math.min(hi, v));
+function fill(ul, dur, stagger) {
+  ITEMS.forEach(([n,s,id], i) => {
+    const li = document.createElement("li");
+    li.innerHTML = `<h3>${n}</h3><p>${s}</p><span class="tag">#${id}</span>`;
+    li.style.animationDelay = `-${clamp(t - i*stagger, 0, dur)}ms`;
+    ul.appendChild(li);
+  });
+}
+fill(document.getElementById("a"), 300, 0);    // no stagger
+fill(document.getElementById("b"), 260, 40);   // 40ms stagger
+document.getElementById("clock").textContent = `t = ${String(t).padStart(3," ")} ms`;
+</script>
+</body></html>

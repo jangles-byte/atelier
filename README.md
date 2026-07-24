@@ -45,10 +45,14 @@ simulated deuteranopia — indistinguishable, with a legend as their only key.
 
 ### A third medium: motion
 
-Stills can't demonstrate the `motion` and `performance-craft` skills, so this example
-measures instead of asserting ([`motion-critique.md`](examples/motion-critique.md)).
 Two pages with **byte-identical markup and static CSS**, differing only in their motion
-code, sampled per animation frame in Chrome:
+code — so what you're seeing is motion alone
+([`motion-critique.md`](examples/motion-critique.md)):
+
+![Side-by-side animation: linear with no stagger versus eased with a 40ms stagger](examples/motion.gif)
+
+Left arrives as a slab. Right cascades and snaps. Same pixels, same 20px of travel.
+Sampled per animation frame in Chrome, that difference looks like this:
 
 ![Measured motion curves: linear versus ease-out](examples/motion-curve.png)
 
