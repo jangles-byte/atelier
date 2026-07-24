@@ -1,0 +1,121 @@
+<!DOCTYPE html>
+<html lang="en"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Motion — before</title>
+<style>
+  /* ============================================================
+     STATIC DESIGN — byte-identical to motion-after.html.
+     The only difference between these two files is the MOTION
+     block at the bottom. Same pixels, different life.
+     ============================================================ */
+  :root {
+    --bg: oklch(17% 0.012 265); --raised: oklch(21% 0.014 265);
+    --text: oklch(93% 0.008 265); --muted: oklch(68% 0.012 265);
+    --border: oklch(30% 0.016 265); --accent: oklch(72% 0.15 265);
+    --ink: oklch(16% 0.02 265); --ok: oklch(75% 0.12 150);
+    --s2: 8px; --s3: 12px; --s4: 16px; --s5: 24px; --s6: 32px;
+    color-scheme: dark;
+  }
+  * { margin:0; padding:0; box-sizing:border-box; }
+  body { background: var(--bg); color: var(--text); min-height: 100vh;
+    font: 15px/1.5 "Inter", system-ui, sans-serif; padding: var(--s6); }
+  .app { max-width: 560px; margin: 0 auto; }
+  header { display:flex; align-items:center; justify-content:space-between;
+    padding-bottom: var(--s4); border-bottom: 1px solid var(--border); }
+  h1 { font-size: 19px; font-weight: 650; letter-spacing: -0.01em; }
+  .live { display:flex; align-items:center; gap: var(--s2);
+    font-size: 12.5px; color: var(--muted); }
+  .dot { width:7px; height:7px; border-radius:50%; background: var(--ok); }
+  .btn { font: 600 14px "Inter", system-ui, sans-serif; height: 38px;
+    padding: 0 var(--s4); border-radius: 6px; background: var(--accent);
+    color: var(--ink); border: none; cursor: pointer; }
+  .list { list-style:none; margin-top: var(--s5);
+    display:flex; flex-direction:column; gap: var(--s3); }
+  .card { position: relative; background: var(--raised);
+    border: 1px solid var(--border); border-radius: 8px;
+    padding: var(--s4); cursor: pointer; }
+  .card h3 { font-size: 14.5px; font-weight: 600; }
+  .card p { font-size: 13px; color: var(--muted); margin-top: 3px; }
+  .card .tag { position:absolute; top: var(--s4); right: var(--s4);
+    font: 500 11.5px ui-monospace, monospace; color: var(--muted); }
+  .panel { position: fixed; inset: 0; display: grid; place-items: center;
+    background: oklch(10% 0.01 265 / 0.6); }
+  .panel .sheet { width: min(420px, 90vw); background: var(--raised);
+    border: 1px solid var(--border); border-radius: 10px; padding: var(--s5); }
+  .panel h2 { font-size: 17px; font-weight: 650; }
+  .panel p { color: var(--muted); font-size: 13.5px; margin-top: var(--s2); }
+  .panel .close { margin-top: var(--s5); }
+  .hidden { display: none; }
+
+  /* ============================================================
+     MOTION — the "before". Every sin the diagnostic looks for.
+     ============================================================ */
+  .card, .btn { transition: all 300ms linear; }        /* §1 linear, §2 uniform + `all` */
+  .card { top: 0; opacity: 1; }
+  .card.enter { top: 20px; opacity: 0; }               /* §6 animates `top` = layout, not transform */
+  .card:hover { opacity: 0.85; }                       /* §6 opacity-only hover reads cheap */
+  .btn:hover { opacity: 0.85; }
+  .panel { transition: opacity 300ms linear; }         /* §7 no origin, no exit, no causality */
+</style></head>
+<body>
+<div class="app">
+  <header>
+    <h1>Deploy queue</h1>
+    <span class="live"><span class="dot" id="dot"></span>live</span>
+  </header>
+  <button class="btn" id="run" style="margin-top:24px">Load queue</button>
+  <ul class="list" id="list"></ul>
+</div>
+
+<div class="panel hidden" id="panel">
+  <div class="sheet">
+    <h2 id="ptitle">payments-service</h2>
+    <p>Build 4127 · queued behind 2 jobs · estimated 3m 40s remaining.</p>
+    <button class="btn close" id="close">Close</button>
+  </div>
+</div>
+
+<script>
+const ITEMS = [
+  ["payments-service", "staging → prod", "4127"],
+  ["auth-gateway", "canary 10%", "4126"],
+  ["search-indexer", "rebuild shards", "4125"],
+  ["web-frontend", "assets + SSR", "4124"],
+  ["notifier", "hotfix", "4123"],
+];
+const list = document.getElementById("list");
+function render() {
+  list.innerHTML = "";
+  ITEMS.forEach(([t, s, n]) => {
+    const li = document.createElement("li");
+    li.className = "card enter";
+    li.innerHTML = `<h3>${t}</h3><p>${s}</p><span class="tag">#${n}</span>`;
+    li.onclick = () => openPanel(t);
+    list.appendChild(li);
+  });
+  // §3 no stagger: every card starts and stops on the same frame
+  requestAnimationFrame(() => requestAnimationFrame(() => {
+    document.querySelectorAll(".card").forEach(c => c.classList.remove("enter"));
+  }));
+}
+document.getElementById("run").onclick = render;
+
+const panel = document.getElementById("panel");
+function openPanel(t) {
+  document.getElementById("ptitle").textContent = t;
+  panel.classList.remove("hidden");          // §7 appears instantly, no entrance
+  panel.style.opacity = 0;
+  requestAnimationFrame(() => panel.style.opacity = 1);
+}
+document.getElementById("close").onclick = () => panel.classList.add("hidden"); // §7 no exit at all
+
+// §11 / performance: a permanent rAF loop that never idles, never pauses off-screen
+let phase = 0;
+(function ambient() {
+  phase += 0.02;
+  document.getElementById("dot").style.opacity = 0.55 + 0.45 * Math.sin(phase);
+  requestAnimationFrame(ambient);
+})();
+render();
+</script>
+</body></html>

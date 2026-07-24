@@ -1,0 +1,86 @@
+<!DOCTYPE html>
+<html><head><meta charset="utf-8"><title>Measured motion curves</title>
+<style>
+  :root {
+    --ink: oklch(25% 0.02 285); --muted: oklch(50% 0.015 285);
+    --rule: oklch(92% 0.008 285); --accent: oklch(52% 0.19 285);
+    --ctx: oklch(58% 0.014 285); --paper: oklch(99% 0.003 285);
+    font-variant-numeric: tabular-nums;
+  }
+  body { background: var(--paper); color: var(--ink); margin:0; padding:48px;
+    font-family: "Inter", system-ui, sans-serif; }
+  .wrap { width: 800px; }
+  h2 { font-size:29px; font-weight:700; letter-spacing:-0.02em; line-height:1.1; margin:0; }
+  .deck { font-size:15px; color:var(--muted); margin:10px 0 0; max-width:64ch; line-height:1.5; }
+  svg { margin-top:36px; display:block; }
+  .axis { font-size:12px; fill:var(--muted); }
+  .lab { font-size:13px; font-weight:600; }
+  .val { font-size:12.5px; }
+  .note { font-size:12.5px; color:var(--muted); margin-top:24px; padding-top:14px;
+    border-top:1px solid var(--rule); max-width:70ch; line-height:1.6; }
+</style></head><body>
+<div class="wrap">
+  <h2>The same 20&nbsp;px of travel, measured per frame</h2>
+  <p class="deck">Card entrance sampled every animation frame in Chrome, normalized to
+  0–1. Both pages are byte-identical except for their motion code. The dashed line is
+  <code>300ms linear</code>; the solid line is <code>260ms cubic-bezier(0.22, 1, 0.36, 1)</code>.</p>
+
+  <svg width="800" height="360" viewBox="0 0 800 360" role="img"
+    aria-label="Line chart comparing measured animation progress over time. The linear curve rises as a straight line reaching 100% at 304 milliseconds. The ease-out curve rises steeply, reaching 49% at 40 milliseconds and 96% at 133 milliseconds.">
+    <g stroke="var(--rule)" stroke-width="1">
+      <line x1="70" y1="40"  x2="600" y2="40"/>
+      <line x1="70" y1="105" x2="600" y2="105"/>
+      <line x1="70" y1="170" x2="600" y2="170"/>
+      <line x1="70" y1="235" x2="600" y2="235"/>
+    </g>
+    <line x1="70" y1="300" x2="600" y2="300" stroke="var(--ink)" stroke-width="1.25"/>
+    <g class="axis" text-anchor="end">
+      <text x="58" y="44">100%</text><text x="58" y="109">75%</text>
+      <text x="58" y="174">50%</text><text x="58" y="239">25%</text>
+      <text x="58" y="304">0</text>
+    </g>
+
+    <!-- 40ms checkpoint -->
+    <line x1="136" y1="40" x2="136" y2="300" stroke="var(--rule)" stroke-width="1" stroke-dasharray="3 3"/>
+    <text class="axis" x="136" y="30" text-anchor="middle">40ms</text>
+
+    <!-- BEFORE: linear 300ms (measured) -->
+    <polyline fill="none" stroke="var(--ctx)" stroke-width="2" stroke-dasharray="5 4"
+      stroke-linecap="round" points="70,300 103.5,285.4 131.1,271.2 158.8,256.5 186.3,242.1
+      213.8,227.7 241.7,213.3 269.9,198.8 297.1,184.4 324.6,170 352.2,155.6 379.7,141
+      407.4,126.5 435,112.1 462.5,97.7 490,83.3 518,68.8 545.5,54.2 573,40"/>
+
+    <!-- AFTER: ease-out 260ms (measured) -->
+    <polyline fill="none" stroke="var(--accent)" stroke-width="3.25"
+      stroke-linecap="round" stroke-linejoin="round"
+      points="70.2,300 97.7,229.5 125.2,172.3 152.8,129.1 180.3,98.5 208,78 235.6,64
+      263.1,55 291.1,49.1 318.4,45.2 346,42.9 373.7,41.4 401.6,40.5 429.2,40.2 455.4,40"/>
+
+    <circle cx="136" cy="172.6" r="4.5" fill="var(--accent)"/>
+    <circle cx="136" cy="268.8" r="4" fill="var(--ctx)"/>
+
+    <g class="lab">
+      <text x="466" y="34" fill="var(--accent)">ease-out 260ms</text>
+      <text x="586" y="36" fill="var(--ctx)">linear 300ms</text>
+    </g>
+    <g class="val">
+      <text x="146" y="168" fill="var(--accent)">49% at 40ms</text>
+      <text x="146" y="284" fill="var(--muted)">11% at 40ms</text>
+    </g>
+
+    <g class="axis" text-anchor="middle">
+      <text x="70"  y="324">0</text><text x="153" y="324">50</text>
+      <text x="236" y="324">100</text><text x="319" y="324">150</text>
+      <text x="401" y="324">200</text><text x="484" y="324">250</text>
+      <text x="567" y="324">300ms</text>
+    </g>
+    <text class="axis" x="335" y="348" text-anchor="middle">time since animation start</text>
+  </svg>
+
+  <p class="note">The eased card is <strong>4.4× further along at 40ms</strong> and
+  visually finished (96.5%) by 133ms, while the linear card is still at 44% — this is
+  what "snappy" measures as. The linear curve's equal per-frame increments (0.055 every
+  frame, without deviation) are the signature of uniform velocity: the reason it reads
+  as mechanical rather than physical.</p>
+</div>
+</body></html>

@@ -43,6 +43,26 @@ simulated deuteranopia — indistinguishable, with a legend as their only key.
 |---|---|
 | ![Default grouped bar chart](examples/chart-before.png) | ![Revised line chart](examples/chart-after.png) |
 
+### A third medium: motion
+
+Stills can't demonstrate the `motion` and `performance-craft` skills, so this example
+measures instead of asserting ([`motion-critique.md`](examples/motion-critique.md)).
+Two pages with **byte-identical markup and static CSS**, differing only in their motion
+code, sampled per animation frame in Chrome:
+
+![Measured motion curves: linear versus ease-out](examples/motion-curve.png)
+
+| Metric | Before | After |
+|---|---|---|
+| Progress at 40ms | 11% | **49%** (4.4× further) |
+| Stagger spread across 5 cards | 0.0ms | **149.9ms** |
+| rAF callbacks during 1s idle | **60** | **0** |
+
+The diagnostic caught eight failures by name — linear easing, one duration for
+everything, zero stagger, no exit, no causality, layout-triggering properties, and a
+permanent `requestAnimationFrame` loop waking 60×/second forever to animate one 7px
+dot.
+
 ## The skills
 
 | Skill | What it does |
