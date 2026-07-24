@@ -1,0 +1,95 @@
+<!DOCTYPE html>
+<html><head><meta charset="utf-8"><title>Pro is carrying growth</title>
+<style>
+  :root {
+    --ink:    oklch(25% 0.020 285);
+    --muted:  oklch(50% 0.015 285);
+    --rule:   oklch(92% 0.008 285);
+    --accent: oklch(52% 0.190 285);
+    --ctx-1:  oklch(55% 0.015 285);
+    --ctx-2:  oklch(60% 0.012 285); /* 3.51:1 over the Pro area fill, not just paper */
+    --paper:  oklch(99% 0.003 285);
+    font-variant-numeric: tabular-nums;
+  }
+  body { background: var(--paper); margin: 0; padding: 48px;
+    font-family: "Inter", system-ui, -apple-system, sans-serif; color: var(--ink); }
+  .wrap { width: 780px; }
+  h2 { font-size: 30px; font-weight: 700; letter-spacing: -0.02em;
+       line-height: 1.1; margin: 0; }
+  .deck { font-size: 15px; color: var(--muted); margin: 10px 0 0; max-width: 58ch;
+          line-height: 1.5; }
+  svg { margin-top: 40px; display: block; }
+  .axis  { font-size: 12px; fill: var(--muted); font-variant-numeric: tabular-nums; }
+  .serieslabel { font-size: 13px; font-weight: 600; }
+  .seriesval   { font-size: 13px; font-variant-numeric: tabular-nums; }
+  .note { font-size: 12.5px; color: var(--muted); margin-top: 28px;
+          padding-top: 14px; border-top: 1px solid var(--rule); }
+</style></head>
+<body>
+<div class="wrap">
+  <h2>Pro is carrying growth</h2>
+  <p class="deck">Monthly active users by plan, January–May. Pro more than tripled
+  while Free and Enterprise roughly doubled — Pro now outnumbers the other two plans
+  combined.</p>
+
+  <svg width="780" height="360" viewBox="0 0 780 360" role="img"
+       aria-label="Line chart of monthly active users by plan, January to May. Pro grows from 6,000 to 19,000; Free from 4,000 to 9,000; Enterprise from 2,000 to 4,000.">
+    <!-- hairline gridlines: chart junk recedes -->
+    <g stroke="var(--rule)" stroke-width="1">
+      <line x1="64" y1="40"  x2="620" y2="40"/>
+      <line x1="64" y1="110" x2="620" y2="110"/>
+      <line x1="64" y1="180" x2="620" y2="180"/>
+      <line x1="64" y1="250" x2="620" y2="250"/>
+    </g>
+    <!-- baseline only, at full weight -->
+    <line x1="64" y1="320" x2="620" y2="320" stroke="var(--ink)" stroke-width="1.25"/>
+
+    <!-- y labels, abbreviated -->
+    <g class="axis" text-anchor="end">
+      <text x="52" y="44">20k</text>
+      <text x="52" y="114">15k</text>
+      <text x="52" y="184">10k</text>
+      <text x="52" y="254">5k</text>
+      <text x="52" y="324">0</text>
+    </g>
+
+    <!-- context series: neutral, thinner; Enterprise dashed (second channel, not hue) -->
+    <polyline fill="none" stroke="var(--ctx-2)" stroke-width="2" stroke-dasharray="5 4"
+      stroke-linecap="round" points="64,292 203,285 342,278 481,271 620,264"/>
+    <polyline fill="none" stroke="var(--ctx-1)" stroke-width="2" stroke-linecap="round"
+      points="64,264 203,250 342,229 481,215 620,194"/>
+
+    <!-- hero series: the only chroma on the page -->
+    <path d="M64,236 L203,208 L342,166 L481,124 L620,54 L620,320 L64,320 Z"
+          fill="var(--accent)" opacity="0.07"/>
+    <polyline fill="none" stroke="var(--accent)" stroke-width="3.25"
+      stroke-linecap="round" stroke-linejoin="round"
+      points="64,236 203,208 342,166 481,124 620,54"/>
+    <circle cx="620" cy="54" r="5" fill="var(--accent)"/>
+
+    <!-- direct labels: position + text, so hue is never the sole channel -->
+    <g class="serieslabel">
+      <text x="634" y="50"  fill="var(--accent)">Pro</text>
+      <text x="634" y="190" fill="var(--ctx-1)">Free</text>
+      <text x="634" y="260" fill="var(--ctx-2)">Enterprise</text>
+    </g>
+    <g class="seriesval">
+      <text x="634" y="68"  fill="var(--accent)">19,000</text>
+      <text x="634" y="208" fill="var(--muted)">9,000</text>
+      <text x="634" y="278" fill="var(--muted)">4,000</text>
+    </g>
+
+    <!-- x labels -->
+    <g class="axis" text-anchor="middle">
+      <text x="64"  y="342">Jan</text>
+      <text x="203" y="342">Feb</text>
+      <text x="342" y="342">Mar</text>
+      <text x="481" y="342">Apr</text>
+      <text x="620" y="342">May</text>
+    </g>
+  </svg>
+
+  <p class="note">Pro grew 3.2× over five months against 2.3× for Free and 2.0× for
+  Enterprise.</p>
+</div>
+</body></html>

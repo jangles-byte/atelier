@@ -31,6 +31,18 @@ The after page came from the package's workflow: a named direction
 itself), one rationed accent, a two-voice type system, and every text pair
 contrast-verified in the rendered page.
 
+### A second medium: data visualization
+
+The same protocol, run on a chart instead of a page
+([`chart-critique.md`](examples/chart-critique.md)). It caught two failures that
+review-by-eye does not: the default orange series at **2.53:1** on white (below
+the 3:1 floor for chart marks), and two series collapsing to **1.14:1** under
+simulated deuteranopia — indistinguishable, with a legend as their only key.
+
+| Before (library defaults) | After (Atelier workflow) |
+|---|---|
+| ![Default grouped bar chart](examples/chart-before.png) | ![Revised line chart](examples/chart-after.png) |
+
 ## The skills
 
 | Skill | What it does |
