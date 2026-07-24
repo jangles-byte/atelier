@@ -54,7 +54,7 @@ alike. Point it at a file or a dev server, give it something to click, get back 
 you can actually judge. The `critique` skill requires this step: **if anything moves, a
 still is not a render.**
 
-*Needs Chrome/Chromium, ffmpeg, and `pip install websocket-client`.*
+*Needs only Chrome/Chromium and ffmpeg — no pip installs; the DevTools WebSocket client is stdlib.*
 
 ## The motion skill
 

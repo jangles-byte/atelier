@@ -31,12 +31,12 @@ Options
   --chrome PATH      explicit Chrome/Chromium binary
   --keep-frames      don't delete the temporary PNG frames
 
-Requires: Chrome or Chromium, ffmpeg (for GIF output), and websocket-client
-          (pip install websocket-client).
+Requires: Chrome or Chromium, and ffmpeg for GIF output. No pip installs —
+          the DevTools WebSocket client below is stdlib only.
 """
 
-import argparse, base64, json, os, shutil, socket, subprocess, sys, tempfile, time
-import urllib.request
+import argparse, base64, json, os, shutil, socket, struct, subprocess, sys, tempfile, time
+import urllib.parse, urllib.request
 
 CHROME_CANDIDATES = [
     "/Applications/Google Chrome.app/Contents/MacOS/Google Chrome",
@@ -73,15 +73,133 @@ def to_url(target):
     return "file://" + path
 
 
+class WebSocket:
+    """A minimal RFC-6455 client, stdlib only — no pip install to run this script.
+
+    Only what the DevTools protocol needs: a text channel, fragmentation reassembly
+    (screencast frames arrive as large base64 payloads and are routinely split), and
+    ping/pong. Frames are parsed non-destructively: bytes are consumed only once a
+    whole frame has arrived, so a read timeout mid-frame leaves the stream intact
+    and the next read resumes where it left off.
+    """
+
+    def __init__(self, url, timeout=30):
+        u = urllib.parse.urlparse(url)
+        host, port = u.hostname, u.port or (443 if u.scheme == "wss" else 80)
+        self.sock = socket.create_connection((host, port), timeout=timeout)
+        if u.scheme == "wss":
+            import ssl
+            self.sock = ssl.create_default_context().wrap_socket(
+                self.sock, server_hostname=host)
+        path = (u.path or "/") + (f"?{u.query}" if u.query else "")
+        key = base64.b64encode(os.urandom(16)).decode()
+        self.sock.sendall((
+            f"GET {path} HTTP/1.1\r\nHost: {host}:{port}\r\n"
+            "Upgrade: websocket\r\nConnection: Upgrade\r\n"
+            f"Sec-WebSocket-Key: {key}\r\nSec-WebSocket-Version: 13\r\n\r\n"
+        ).encode())
+        buf = b""
+        while b"\r\n\r\n" not in buf:
+            chunk = self.sock.recv(4096)
+            if not chunk:
+                raise ConnectionError("connection closed during handshake")
+            buf += chunk
+        head, _, rest = buf.partition(b"\r\n\r\n")
+        if b" 101" not in head.split(b"\r\n")[0]:
+            raise ConnectionError(f"handshake failed: {head.splitlines()[0][:120]!r}")
+        self._buf = rest                      # trailing bytes already belong to frames
+
+    def settimeout(self, t):
+        self.sock.settimeout(t)
+
+    def _parse(self):
+        """Return one frame if a whole one is buffered, else None. Never partially consumes."""
+        b = self._buf
+        if len(b) < 2:
+            return None
+        ln, off = b[1] & 0x7F, 2
+        if ln == 126:
+            if len(b) < 4:
+                return None
+            ln, off = struct.unpack(">H", b[2:4])[0], 4
+        elif ln == 127:
+            if len(b) < 10:
+                return None
+            ln, off = struct.unpack(">Q", b[2:10])[0], 10
+        mask = None
+        if b[1] & 0x80:                        # servers must not mask, but be tolerant
+            if len(b) < off + 4:
+                return None
+            mask, off = b[off:off + 4], off + 4
+        if len(b) < off + ln:
+            return None
+        data = b[off:off + ln]
+        if mask:
+            data = bytes(x ^ mask[i % 4] for i, x in enumerate(data))
+        self._buf = b[off + ln:]
+        return bool(b[0] & 0x80), b[0] & 0x0F, data
+
+    def _frame(self):
+        while True:
+            f = self._parse()
+            if f:
+                return f
+            chunk = self.sock.recv(1 << 16)
+            if not chunk:
+                raise ConnectionError("websocket closed")
+            self._buf += chunk
+
+    def recv(self):
+        """Next complete text message, reassembling continuation frames."""
+        payload, op = b"", None
+        while True:
+            fin, opcode, data = self._frame()
+            if opcode == 0x9:                  # ping -> pong, keep the socket alive
+                self._emit(0xA, data)
+                continue
+            if opcode == 0xA:
+                continue
+            if opcode == 0x8:
+                raise ConnectionError("websocket closed by peer")
+            if opcode == 0x0:
+                payload += data
+            else:
+                op, payload = opcode, data
+            if fin:
+                if op == 0x1:
+                    return payload.decode("utf-8", "replace")
+                payload, op = b"", None        # ignore binary; CDP speaks text
+
+    def _emit(self, opcode, payload):
+        mask, n = os.urandom(4), len(payload)
+        hdr = bytes([0x80 | opcode])
+        if n < 126:
+            hdr += bytes([0x80 | n])
+        elif n < 65536:
+            hdr += bytes([0x80 | 126]) + struct.pack(">H", n)
+        else:
+            hdr += bytes([0x80 | 127]) + struct.pack(">Q", n)
+        self.sock.sendall(hdr + mask + bytes(x ^ mask[i % 4] for i, x in enumerate(payload)))
+
+    def send(self, text):
+        self._emit(0x1, text.encode())
+
+    def close(self):
+        try:
+            self._emit(0x8, b"")
+        except Exception:
+            pass
+        try:
+            self.sock.close()
+        except Exception:
+            pass
+
+
 class CDP:
     """Minimal DevTools-protocol client: send a command, wait for its reply."""
 
     def __init__(self, ws_url):
-        try:
-            import websocket  # websocket-client
-        except ImportError:
-            sys.exit("Missing dependency: pip install websocket-client")
-        self.ws = websocket.create_connection(ws_url, max_size=None, timeout=30)
+        self.ws = WebSocket(ws_url, timeout=30)
         self._id = 0
         self.events = []
 
