@@ -1,0 +1,59 @@
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8">
+<title>Orbits — n-body with trails</title><link rel="stylesheet" href="_gen.css"></head><body>
+<canvas id="c"></canvas>
+<div class="cap"><b>Perihelion</b>9,000 bodies · 3 drifting attractors · softening 900<br>
+brightness is orbital speed — fast is hot</div>
+<div class="seed">seed 1129</div>
+<script src="_gen.js"></script><script>
+/* Intent: a sky of small bodies falling around three slow masses. Colour is earned by
+   speed, which is physically what heat is here: bodies brighten at perihelion and cool
+   at apoapsis, so the image reads as orbits rather than as scribble. Softening keeps
+   close passes from slingshotting to infinity — without it the piece empties itself. */
+const cv=document.getElementById('c'),ctx=cv.getContext('2d',{alpha:false});
+const rnd=mulberry32(1129), noise=makeNoise(rnd);
+let W,H;
+const N=9000, P=new Float32Array(N*4);              // x, y, vx, vy
+const AT=[{m:1.0,p:0.0},{m:0.78,p:2.2},{m:0.62,p:4.3}];
+function resize(){ W=cv.width=innerWidth; H=cv.height=innerHeight;
+  ctx.fillStyle='#06050a'; ctx.fillRect(0,0,W,H);
+  for(let i=0;i<N;i++){
+    const a=rnd()*Math.PI*2, r=(0.10+Math.sqrt(rnd())*0.42)*Math.min(W,H);
+    const x=W/2+Math.cos(a)*r, y=H/2+Math.sin(a)*r;
+    const v=Math.sqrt(46000/Math.max(r,60))*(0.82+rnd()*0.36);
+    P[i*4]=x; P[i*4+1]=y; P[i*4+2]=-Math.sin(a)*v; P[i*4+3]=Math.cos(a)*v;  // tangential: orbit, not fall
+  }
+}
+addEventListener('resize',resize); resize();
+let t=0,last=performance.now();
+(function loop(now){
+  const dt=Math.min((now-last)/1000,1/30); last=now; t+=dt;
+  ctx.globalCompositeOperation='source-over';
+  ctx.fillStyle='rgba(6,5,10,0.038)'; ctx.fillRect(0,0,W,H);   // trail length lives here
+  ctx.globalCompositeOperation='lighter'; ctx.lineCap='round';
+  const R=Math.min(W,H)*0.21;
+  const A=AT.map((a,i)=>({m:a.m,x:W/2+Math.cos(t*0.10+a.p)*R*(0.9+0.25*Math.sin(t*0.07+i)),
+                                 y:H/2+Math.sin(t*0.13+a.p)*R*0.62}));
+  for(let i=0;i<N;i++){
+    const o=i*4; let x=P[o],y=P[o+1],vx=P[o+2],vy=P[o+3];
+    for(const a of A){
+      const dx=a.x-x, dy=a.y-y, r2=dx*dx+dy*dy+900;      // softening: no slingshot to infinity
+      const f=46000*a.m/(r2*Math.sqrt(r2));
+      vx+=dx*f*dt; vy+=dy*f*dt;
+    }
+    const drag=Math.pow(0.985,dt*60); vx*=drag; vy*=drag;
+    const px=x,py=y; x+=vx*dt; y+=vy*dt;
+    if(x<-40||x>W+40||y<-40||y>H+40){                     // recycle escapees
+      const a2=rnd()*Math.PI*2, r=(0.2+rnd()*0.3)*Math.min(W,H);
+      x=W/2+Math.cos(a2)*r; y=H/2+Math.sin(a2)*r;
+      const v=Math.sqrt(46000/Math.max(r,60));
+      vx=-Math.sin(a2)*v; vy=Math.cos(a2)*v;
+    }
+    P[o]=x;P[o+1]=y;P[o+2]=vx;P[o+3]=vy;
+    const sp=clamp(Math.hypot(vx,vy)/460,0,1);
+    ctx.strokeStyle=`oklch(${40+sp*50}% ${0.10+sp*0.09} ${276-sp*62} / ${0.16+sp*0.5})`;
+    ctx.lineWidth=0.75+sp*1.6;
+    ctx.beginPath(); ctx.moveTo(px,py); ctx.lineTo(x,y); ctx.stroke();
+  }
+  requestAnimationFrame(loop);
+})(performance.now());
+</script></body></html>

@@ -39,6 +39,29 @@ brightness encodes velocity. [`ember.html`](examples/ember.html)
 
 ---
 
+## Generative motion
+
+Motion as the artwork rather than the interface — flow fields, strange attractors,
+flocking, domain-warped noise, n-body systems. The
+[`generative-motion`](skills/generative-motion/) skill covers the systems with the
+parameter ranges that actually look good, plus the art direction that separates a piece
+from a screensaver.
+
+> ### → [Browse the generative gallery](examples/generative/)
+
+| | |
+|---|---|
+| ![clifford](examples/generative/attractor.gif) | ![murmuration](examples/generative/boids.gif) |
+| **Clifford** — deterministic chaos. One point iterated 420,000×/frame; brightness is visit density. | **Murmuration** — three local rules, no leader; brightness is local flock density. |
+| ![strata](examples/generative/warp.gif) | ![perihelion](examples/generative/orbits.gif) |
+| **Strata** — noise fed into the coordinates of noise, twice. Only the inner layer evolves, so it breathes rather than slides. | **Perihelion** — bodies falling around three slow masses; they brighten at perihelion and cool at apoapsis. |
+
+The rule every piece follows: **colour is earned.** It maps to a property the system
+actually has — velocity, density, visit count, age — never to a rainbow of hue over time.
+Colour that encodes nothing is the loudest signal that no decision was made.
+
+---
+
 ## Watch your own work
 
 The part that makes this a tool instead of a reading list:
@@ -86,6 +109,14 @@ variant, and the failure mode that ruins it — **and a demo you can watch**.
 | **design-direction** | Sets the motion temperament and a written aesthetic point of view, so choices follow intent instead of habit. |
 | **color** | Perceptual palettes in OKLCH, dark/light theme families, contrast discipline, and the glow restraint that keeps motion from becoming noise. |
 | **typography-and-layout** | Type pairing, modular scale, the spacing ladder, grids and when to break them. |
+
+The **generative-motion** skill sits alongside `motion` as a second front door: use `motion`
+when the animation serves an interface, `generative-motion` when the animation *is* the
+work. Its references cover noise and fbm, domain warping, curl fields, trails and
+accumulation buffers, colour mapping, and nine systems worth building — physarum, strange
+attractors, boids, reaction–diffusion, differential growth, n-body, metaballs, interference
+and cellular automata — each with the ranges that look good and the failure mode that
+ruins it.
 
 ## Install
 

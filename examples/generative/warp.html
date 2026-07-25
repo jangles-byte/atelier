@@ -1,0 +1,43 @@
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8">
+<title>Warp — domain-warped noise</title><link rel="stylesheet" href="_gen.css"></head><body>
+<canvas id="c"></canvas>
+<div class="cap"><b>Strata</b>two-level domain warp · fbm 2 octaves · evolving at 0.02×<br>
+brightness is warp magnitude</div>
+<div class="seed">seed 4210</div>
+<script src="_gen.js"></script><script>
+/* Intent: ink held in glass. Noise fed into the coordinates of more noise — the trick
+   that turns clouds into marble. Only the innermost layer evolves, so the structure
+   breathes rather than slides. Rendered at a third scale and upsampled: the field has no
+   high-frequency detail to lose, and it buys a 9x fill budget. */
+const cv=document.getElementById('c'),ctx=cv.getContext('2d',{alpha:false});
+const rnd=mulberry32(4210), noise=makeNoise(rnd);
+const off=document.createElement('canvas'),octx=off.getContext('2d');
+let W,H,GW,GH,img,buf;
+const S=3;
+const LUT=ramp([[0,0.10,0.020,265],[0.30,0.26,0.075,285],[0.55,0.46,0.130,320],
+                [0.80,0.72,0.150,25],[1,0.95,0.070,70]]);
+function resize(){ W=cv.width=innerWidth; H=cv.height=innerHeight;
+  GW=Math.ceil(W/S); GH=Math.ceil(H/S); off.width=GW; off.height=GH;
+  img=octx.createImageData(GW,GH); buf=new Uint32Array(img.data.buffer); }
+addEventListener('resize',resize); resize();
+let t=0,last=performance.now();
+(function loop(now){
+  const dt=Math.min((now-last)/1000,1/30); last=now; t+=dt*0.02;   // slower than feels right
+  const sc=0.0042*S;
+  for(let y=0;y<GH;y++){
+    for(let x=0;x<GW;x++){
+      const px=x*sc, py=y*sc;
+      const q1=fbm(noise,px,py,t), q2=fbm(noise,px+5.2,py+1.3,t);
+      const r1=fbm(noise,px+4*q1+1.7,py+4*q2+9.2,t*0.6);
+      const r2=fbm(noise,px+4*q1+8.3,py+4*q2+2.8,t*0.6);
+      const v=fbm(noise,px+4*r1,py+4*r2,t*0.35);
+      const mag=clamp((v*0.5+0.5)*0.72+Math.hypot(r1,r2)*0.26,0,1);
+      const k=(mag*255)|0;
+      buf[y*GW+x]=(255<<24)|(LUT[k*3+2]<<16)|(LUT[k*3+1]<<8)|LUT[k*3];
+    }
+  }
+  octx.putImageData(img,0,0);
+  ctx.imageSmoothingEnabled=true; ctx.drawImage(off,0,0,GW,GH,0,0,W,H);
+  requestAnimationFrame(loop);
+})(performance.now());
+</script></body></html>

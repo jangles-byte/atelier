@@ -1,0 +1,9 @@
+html,body{margin:0;height:100%;overflow:hidden;background:#06050a}
+canvas{display:block;width:100vw;height:100vh}
+.cap{position:fixed;left:22px;bottom:18px;z-index:2;
+  font:500 10.5px/1.6 ui-monospace,"SF Mono",monospace;letter-spacing:.15em;
+  text-transform:uppercase;color:oklch(58% .02 60);pointer-events:none}
+.cap b{display:block;font-size:12.5px;letter-spacing:.2em;color:oklch(82% .1 70);margin-bottom:3px}
+.seed{position:fixed;right:22px;bottom:18px;z-index:2;
+  font:500 10px/1 ui-monospace,monospace;letter-spacing:.14em;color:oklch(44% .015 60)}
+.cap,.seed{text-shadow:0 1px 6px rgba(0,0,0,.9),0 0 18px rgba(0,0,0,.7)}

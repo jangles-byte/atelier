@@ -1,0 +1,65 @@
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8">
+<title>Boids — murmuration</title><link rel="stylesheet" href="_gen.css"></head><body>
+<canvas id="c"></canvas>
+<div class="cap"><b>Murmuration</b>1,400 agents · separation 17 / alignment 42 / cohesion 58<br>
+brightness is local flock density</div>
+<div class="seed">seed 3312</div>
+<script src="_gen.js"></script><script>
+/* Intent: a flock at dusk. Three local rules, no leader, no path — the shape of the whole
+   is an accident of everyone watching their neighbours. Colour is earned by local density,
+   so the knots where birds crowd glow and the stragglers go dark. Speed is clamped to a
+   band, never to zero: birds do not hover. */
+const cv=document.getElementById('c'),ctx=cv.getContext('2d',{alpha:false});
+const rnd=mulberry32(3312);
+let W,H;
+const N=1400, B=new Float32Array(N*4);
+const SEP=17, ALI=42, COH=58, CELL=58;
+let grid=new Map();
+function resize(){ W=cv.width=innerWidth; H=cv.height=innerHeight;
+  ctx.fillStyle='#06050a'; ctx.fillRect(0,0,W,H);
+  for(let i=0;i<N;i++){ const a=rnd()*6.283, sp=70+rnd()*50;
+    B[i*4]=rnd()*W; B[i*4+1]=rnd()*H; B[i*4+2]=Math.cos(a)*sp; B[i*4+3]=Math.sin(a)*sp; } }
+addEventListener('resize',resize); resize();
+const key=(x,y)=>((x/CELL)|0)+','+((y/CELL)|0);
+let last=performance.now();
+(function loop(now){
+  const dt=Math.min((now-last)/1000,1/30); last=now;
+  grid.clear();
+  for(let i=0;i<N;i++){ const k=key(B[i*4],B[i*4+1]);
+    let a=grid.get(k); if(!a){a=[];grid.set(k,a);} a.push(i); }
+  ctx.globalCompositeOperation='source-over';
+  ctx.fillStyle='rgba(6,5,10,0.052)'; ctx.fillRect(0,0,W,H);
+  ctx.globalCompositeOperation='lighter'; ctx.lineCap='round';
+  for(let i=0;i<N;i++){
+    const o=i*4; let x=B[o],y=B[o+1],vx=B[o+2],vy=B[o+3];
+    let sx=0,sy=0,ax=0,ay=0,cx=0,cy=0,na=0,nc=0,dens=0;
+    const gx=(x/CELL)|0, gy=(y/CELL)|0;
+    for(let ox=-1;ox<=1;ox++) for(let oy=-1;oy<=1;oy++){
+      const a=grid.get((gx+ox)+','+(gy+oy)); if(!a) continue;
+      for(const j of a){ if(j===i) continue;
+        const dx=B[j*4]-x, dy=B[j*4+1]-y, d2=dx*dx+dy*dy;
+        if(d2>COH*COH||d2===0) continue;
+        const d=Math.sqrt(d2); dens++;
+        if(d<SEP){ sx-=dx/d2*40; sy-=dy/d2*40; }
+        if(d<ALI){ ax+=B[j*4+2]; ay+=B[j*4+3]; na++; }
+        cx+=B[j*4]; cy+=B[j*4+1]; nc++;
+      }
+    }
+    if(na){ vx+=((ax/na)-vx)*1.4*dt; vy+=((ay/na)-vy)*1.4*dt; }
+    if(nc){ vx+=((cx/nc)-x)*0.55*dt; vy+=((cy/nc)-y)*0.55*dt; }
+    vx+=sx*dt*22; vy+=sy*dt*22;
+    const sp=Math.hypot(vx,vy), lo=62, hi=142;             // never stop, never sprint
+    if(sp<lo){ vx=vx/sp*lo; vy=vy/sp*lo; } else if(sp>hi){ vx=vx/sp*hi; vy=vy/sp*hi; }
+    const px=x,py=y; x+=vx*dt; y+=vy*dt;
+    if(x<0)x+=W; else if(x>=W)x-=W;                        // wrap: a wall reads as a cage
+    if(y<0)y+=H; else if(y>=H)y-=H;
+    B[o]=x;B[o+1]=y;B[o+2]=vx;B[o+3]=vy;
+    if(Math.abs(x-px)>W*0.5||Math.abs(y-py)>H*0.5) continue;  // don't draw the wrap seam
+    const q=clamp(dens/16,0,1);
+    ctx.strokeStyle=`oklch(${38+q*50}% ${0.075+q*0.10} ${255-q*70} / ${0.14+q*0.42})`;
+    ctx.lineWidth=0.7+q*1.5;
+    ctx.beginPath(); ctx.moveTo(px,py); ctx.lineTo(x,y); ctx.stroke();
+  }
+  requestAnimationFrame(loop);
+})(performance.now());
+</script></body></html>
