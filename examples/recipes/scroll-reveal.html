@@ -1,25 +1,36 @@
 <!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><title>Scroll reveal</title>
-<link rel="stylesheet" href="_base.css"><style>.scroller{width:400px;height:250px;overflow:hidden;position:relative}
-.inner{padding-top:250px}
-.blk{background:var(--panel);border:1px solid var(--rule);border-radius:10px;
-  padding:15px;margin-bottom:14px;opacity:0;transform:translateY(16px)}
-.blk.in{opacity:1;transform:none;transition:opacity 460ms var(--out),transform 460ms var(--out)}</style></head><body>
-<div class="spec">travel <b>16px</b> · <b>460ms ease-out</b> · fires once · <b>40ms</b> stagger</div>
-<div class="stage"><div class="scroller" id="s"><div class="inner">
-<div class="blk"><h4>Edge cache</h4><small>94.2% hit rate</small></div>
-<div class="blk"><h4>Origin shield</h4><small>2 regions</small></div>
-<div class="blk"><h4>Purge queue</h4><small>empty</small></div>
-<div class="blk"><h4>TLS</h4><small>renewed 3d ago</small></div>
+<link rel="stylesheet" href="_base.css"><style>.body{overflow:hidden;padding:0}
+.scroll{height:100%;overflow:hidden;padding:20px}
+.sec{margin-bottom:16px;opacity:0;transform:translateY(16px)}
+.sec.in{opacity:1;transform:none;transition:opacity 460ms var(--out),transform 460ms var(--out)}
+.sec h3{font-size:12px;font-weight:650;margin-bottom:9px;color:var(--muted)}</style></head><body>
+<div class="app"><div class="bar"><h1>Archive</h1><div class="grow"></div>
+<span class="pill">1994 — 2026</span></div>
+<div class="body"><div class="scroll" id="s">
+<div class="sec"><h3>Recent</h3><div class="grid">
+<div class="tile"><div class="cv c1"></div><b>Nocturne</b><small>18 takes</small></div>
+<div class="tile"><div class="cv c2"></div><b>Solar Bloom</b><small>24 takes</small></div>
+<div class="tile"><div class="cv c3"></div><b>Deep Field</b><small>11 takes</small></div>
+<div class="tile"><div class="cv c4"></div><b>Verdant</b><small>9 takes</small></div></div></div>
+<div class="sec"><h3>Last season</h3><div class="grid">
+<div class="tile"><div class="cv c5"></div><b>Umbra</b><small>14 takes</small></div>
+<div class="tile"><div class="cv c6"></div><b>Ember</b><small>21 takes</small></div>
+<div class="tile"><div class="cv c3"></div><b>Halide</b><small>6 takes</small></div>
+<div class="tile"><div class="cv c1"></div><b>Pale Fire</b><small>17 takes</small></div></div></div>
+<div class="sec"><h3>Vault</h3><div class="grid">
+<div class="tile"><div class="cv c4"></div><b>Meridian</b><small>31 takes</small></div>
+<div class="tile"><div class="cv c2"></div><b>Cinder</b><small>8 takes</small></div>
+<div class="tile"><div class="cv c5"></div><b>Drift</b><small>12 takes</small></div>
+<div class="tile"><div class="cv c6"></div><b>Wake</b><small>19 takes</small></div></div></div>
 </div></div></div>
-<script src="_loop.js"></script><script>const s=$("#s"),blks=$$(".blk");
-const io=new IntersectionObserver(es=>es.forEach(e=>{
-  if(!e.isIntersecting)return;
-  const i=blks.indexOf(e.target);
-  setTimeout(()=>e.target.classList.add("in"),(i%2)*40);
-  io.unobserve(e.target);}),{root:s,rootMargin:"0px 0px -12% 0px"});
-blks.forEach(b=>io.observe(b));
-function scrollTo(y,ms){const from=s.scrollTop,t0=performance.now();
+<div class="spec">travel <b>16px</b> · <b>460ms ease-out</b> · fires once · <b>40ms</b> stagger · done before reading position</div>
+<script src="_loop.js"></script><script>const s=$("#s"),secs=$$(".sec");
+let io;function arm(){io=new IntersectionObserver(es=>es.forEach(e=>{
+  if(!e.isIntersecting)return;e.target.classList.add("in");io.unobserve(e.target);}),
+  {root:s,rootMargin:"0px 0px -14% 0px"});secs.forEach(x=>io.observe(x));}
+arm();
+function to(y,ms){const from=s.scrollTop,t0=performance.now();
   (function st(n){const t=Math.min(1,(n-t0)/ms),e=1-Math.pow(1-t,3);
    s.scrollTop=from+(y-from)*e;if(t<1)requestAnimationFrame(st);})(t0);}
-cycle([[500,()=>scrollTo(330,1500)],[2600,()=>{s.scrollTop=0;
-  blks.forEach(b=>{b.classList.remove("in");io.observe(b);});}]],3800)</script></body></html>
+cycle([[600,()=>to(420,2100)],[3300,()=>{io.disconnect();s.scrollTop=0;
+  secs.forEach(x=>x.classList.remove("in"));arm();}]],4500)</script></body></html>

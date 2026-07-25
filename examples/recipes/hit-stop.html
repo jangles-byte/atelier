@@ -1,18 +1,42 @@
 <!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><title>Hit-stop</title>
-<link rel="stylesheet" href="_base.css"><style>.win{width:430px;height:200px;overflow:hidden;border-radius:12px;border:1px solid var(--rule);
-  background:oklch(13% .014 265);position:relative}
-.orb{position:absolute;top:78px;width:44px;height:44px;border-radius:50%;background:var(--accent)}
-.wall{position:absolute;top:56px;right:70px;width:12px;height:88px;border-radius:4px;background:var(--muted)}
-.flash{position:absolute;inset:0;background:oklch(98% .04 60);opacity:0}</style></head><body>
-<div class="spec">freeze <b>70ms</b> at 5% speed · actors only, camera keeps moving · the pause is the punch</div>
-<div class="stage"><div class="win">
-<div class="wall"></div><div class="orb" id="o"></div><div class="flash" id="f"></div></div></div>
-<script src="_loop.js"></script><script>const o=$("#o"),f=$("#f");let x=-50,v=0,freeze=0,last=performance.now();
+<link rel="stylesheet" href="_base.css"><style>.body{padding:0;display:flex}
+.view{flex:1;position:relative;overflow:hidden;background:
+  radial-gradient(90% 80% at 50% 0%,oklch(17% .02 275),oklch(11% .012 275) 70%)}
+.side{width:150px;border-left:1px solid var(--line);padding:15px 14px;
+  display:flex;flex-direction:column;gap:13px}
+.rd .k{font:600 9.5px/1 ui-monospace,monospace;letter-spacing:.16em;text-transform:uppercase;
+  color:var(--faint)}
+.rd .v{font-size:17px;font-weight:650;letter-spacing:-.02em;margin-top:5px}
+.meter{height:4px;background:var(--sunk);border-radius:9px;overflow:hidden;margin-top:7px}
+.meter i{display:block;height:100%;width:0;background:var(--accent);border-radius:9px}
+canvas{position:absolute;inset:0;width:100%;height:100%}
+.orb{position:absolute;top:50%;margin-top:-27px;width:54px;height:54px;border-radius:50%;
+  background:radial-gradient(120% 110% at 32% 28%,oklch(84% .14 330),oklch(46% .15 318));
+  box-shadow:0 14px 28px -10px rgb(0 0 0/.9)}
+.wall{position:absolute;top:50%;right:64px;margin-top:-58px;width:13px;height:116px;
+  border-radius:5px;background:linear-gradient(180deg,var(--edge),var(--line))}
+.flash{position:absolute;inset:0;background:oklch(98% .05 70);opacity:0;pointer-events:none}</style></head><body>
+<div class="app"><div class="bar"><h1>Contact</h1><div class="grow"></div>
+<span class="pill">70ms freeze</span></div><div class="body">
+<div class="view"><div class="wall"></div><div class="orb" id="o"></div>
+<div class="flash" id="f"></div></div>
+<div class="side">
+<div class="rd"><div class="k">Sim speed</div><div class="v" id="sp">100%</div>
+  <div class="meter"><i id="m" style="background:var(--ok)"></i></div></div>
+<div class="rd"><div class="k">Velocity</div><div class="v" id="v">0</div></div>
+<div class="rd"><div class="k">Freeze</div><div class="v" id="fz">0ms</div></div>
+</div></div></div>
+<div class="spec">freeze <b>70ms</b> at <b>5%</b> speed · actors only, never the camera · the pause is the punch</div>
+<script src="_loop.js"></script><script>const o=$("#o"),f=$("#f"),sp=$("#sp"),m=$("#m"),vv=$("#v"),fz=$("#fz");
+let x=-60,v=0,freeze=0,last=performance.now();
 function loop(now){let dt=Math.min((now-last)/1000,1/30);last=now;
-  if(freeze>0){freeze-=dt;dt*=0.05;}          /* near-freeze, not a true stop */
+  let scale=1;
+  if(freeze>0){freeze-=dt;dt*=0.05;scale=0.05;}
   x+=v*dt;o.style.transform=`translateX(${x}px)`;
-  if(v>0&&x>=286){v=-v*0.55;freeze=0.07;      /* 70ms hit-stop on contact */
-    f.animate([{opacity:.85},{opacity:0}],{duration:190,easing:"ease-out"});}
+  if(v>0&&x>=352){v=-v*0.5;freeze=0.07;
+    f.animate([{opacity:.9},{opacity:0}],{duration:200,easing:"ease-out"});}
+  sp.textContent=Math.round(scale*100)+"%";m.style.width=(scale*100)+"%";
+  vv.textContent=Math.round(Math.abs(v));fz.textContent=Math.max(0,Math.round(freeze*1000))+"ms";
   requestAnimationFrame(loop);}
 requestAnimationFrame(loop);
-cycle([[400,()=>{x=-50;v=520;}]],3000)</script></body></html>
+cycle([[500,()=>{x=-60;v=620;}]],3200)</script></body></html>

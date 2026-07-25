@@ -1,17 +1,29 @@
 <!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><title>Number ticker</title>
-<link rel="stylesheet" href="_base.css"><style>.big{font-size:64px;font-weight:680;letter-spacing:-.03em;transition:color 120ms var(--out)}
-.big.up{color:var(--ok)} .big.dn{color:var(--hot)}
-.lbl{font:500 11px/1 ui-monospace,monospace;letter-spacing:.16em;
-  text-transform:uppercase;color:var(--faint);margin-bottom:8px}</style></head><body>
-<div class="spec"><b>600ms easeOutQuint</b> · tabular-nums · <b>120ms</b> colour pulse on change</div>
-<div class="stage"><div style="text-align:center">
-<div class="lbl">Requests · last minute</div>
-<div class="big" id="n">0</div></div></div>
-<script src="_loop.js"></script><script>const n=$("#n");let cur=0;
-function to(v){const from=cur,t0=performance.now(),dur=600;
-  n.classList.toggle("up",v>from);n.classList.toggle("dn",v<from);
-  setTimeout(()=>n.classList.remove("up","dn"),320);
-  (function s(now){const t=Math.min(1,(now-t0)/dur),e=1-Math.pow(1-t,5);
-   n.textContent=Math.round(from+(v-from)*e).toLocaleString();
-   if(t<1)requestAnimationFrame(s);else cur=v;})(t0);}
-cycle([[300,()=>to(48210)],[1600,()=>to(51944)],[2900,()=>to(37502)]],4200)</script></body></html>
+<link rel="stylesheet" href="_base.css"><style>.stats{display:grid;grid-template-columns:1fr 1fr 1fr;gap:14px}
+.st{padding:15px;border-radius:12px;background:var(--panel);border:1px solid var(--line)}
+.st .k{font:600 10px/1 ui-monospace,monospace;letter-spacing:.15em;text-transform:uppercase;
+  color:var(--faint)}
+.st .v{font-size:30px;font-weight:680;letter-spacing:-.028em;margin-top:10px;
+  transition:color 120ms var(--out)}
+.st .v.up{color:var(--ok)}.st .v.dn{color:var(--accent)}
+.st .d{font-size:11px;color:var(--faint);margin-top:3px}</style></head><body>
+<div class="app"><div class="bar"><h1>This week</h1><div class="grow"></div>
+<span class="pill">live</span></div><div class="body">
+<div class="stats">
+<div class="st"><div class="k">Plays</div><div class="v" id="a">0</div><div class="d">across 3 masters</div></div>
+<div class="st"><div class="k">Listeners</div><div class="v" id="b">0</div><div class="d">unique</div></div>
+<div class="st"><div class="k">Saves</div><div class="v" id="c">0</div><div class="d">to libraries</div></div>
+</div>
+<div class="rows" style="margin-top:16px"><div class="r"><div class="cv c2"></div>
+<div><b>Solar Bloom</b><small>leading this week</small></div><i>+38%</i></div></div>
+</div></div>
+<div class="spec"><b>600ms easeOutQuint</b> · tabular figures so the row never reflows · <b>120ms</b> colour pulse</div>
+<script src="_loop.js"></script><script>function tick(el,to,from){const t0=performance.now(),d=600;
+  el.classList.toggle("up",to>from);el.classList.toggle("dn",to<from);
+  setTimeout(()=>el.classList.remove("up","dn"),330);
+  (function s(n){const t=Math.min(1,(n-t0)/d),e=1-Math.pow(1-t,5);
+   el.textContent=Math.round(from+(to-from)*e).toLocaleString();
+   if(t<1)requestAnimationFrame(s);})(t0);}
+const A=$("#a"),B=$("#b"),C=$("#c");
+cycle([[350,()=>{tick(A,48210,0);tick(B,9184,0);tick(C,1427,0)}],
+       [1900,()=>{tick(A,51944,48210);tick(B,9702,9184);tick(C,1388,1427)}]],3800)</script></body></html>

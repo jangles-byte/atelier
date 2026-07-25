@@ -1,20 +1,25 @@
 <!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><title>Drag with snap-back</title>
-<link rel="stylesheet" href="_base.css"><style>.tile{width:150px;height:150px;border-radius:14px;
-  background:radial-gradient(120% 110% at 30% 24%,oklch(74% .16 265),oklch(38% .12 285));
-  box-shadow:0 16px 34px -14px rgb(0 0 0/.7)}
-.track{width:420px;display:grid;place-items:center}</style></head><body>
-<div class="spec">1:1 while held · release into spring <b>k=400 c=38</b> (ζ≈0.95) · fling &gt; <b>0.5px/ms</b> dismisses</div>
-<div class="stage"><div class="track"><div class="tile" id="t"></div></div></div>
-<script src="_loop.js"></script><script>const t=$("#t");let x=0,v=0,target=0,dragging=false,last=performance.now();
+<link rel="stylesheet" href="_base.css"><style>.hold{display:grid;place-items:center;height:100%}
+.card{width:168px;padding:12px;border-radius:14px;background:linear-gradient(160deg,var(--raise),var(--panel));
+  border:1px solid var(--edge);box-shadow:var(--shadow);will-change:transform}
+.card .cv{width:100%;aspect-ratio:1;border-radius:9px}
+.card b{display:block;font-size:12.5px;font-weight:600;margin-top:10px}
+.card small{display:block;font-size:11px;color:var(--faint)}
+.slot{position:absolute;inset:0;display:grid;place-items:center;pointer-events:none}
+.ghost2{width:168px;height:214px;border-radius:14px;border:1px dashed var(--edge);opacity:.5}</style></head><body>
+<div class="app"><div class="bar"><h1>Reorder</h1><div class="grow"></div>
+<span class="pill">drag to move</span></div><div class="body" style="position:relative">
+<div class="slot"><div class="ghost2"></div></div>
+<div class="hold"><div class="card" id="t"><div class="cv c5"></div>
+<b>Umbra</b><small>24-bit · 48kHz</small></div></div></div></div>
+<div class="spec">1:1 while held · release into spring <b>k=400 c=38</b> (ζ≈0.95) · momentum carries</div>
+<script src="_loop.js"></script><script>const t=$("#t");let x=0,v=0,target=0,drag=false,last=performance.now();
 function loop(now){let dt=Math.min((now-last)/1000,1/30);last=now;
-  if(!dragging){const k=400,c=38;v+=(-k*(x-target)-c*v)*dt;x+=v*dt;}
-  t.style.transform=`translateX(${x.toFixed(2)}px) rotate(${(x*0.03).toFixed(2)}deg)`;
+  if(!drag){v+=(-400*(x-target)-38*v)*dt;x+=v*dt;}
+  t.style.transform=`translateX(${x.toFixed(2)}px) rotate(${(x*0.028).toFixed(2)}deg)`;
   requestAnimationFrame(loop);}
 requestAnimationFrame(loop);
-/* scripted gesture: drag out 1:1, hold, release — the spring carries it home */
-function drag(to,ms){dragging=true;const from=x,t0=performance.now();
+function pull(to,ms){drag=true;const from=x,t0=performance.now();
   (function s(n){const p=Math.min(1,(n-t0)/ms);x=from+(to-from)*p;
-   if(p<1)requestAnimationFrame(s);})(t0);}
-function release(){setTimeout(()=>{const prev=x;dragging=false;v=(x-prev)*60;},0);}
-cycle([[400,()=>drag(150,420)],[1000,release],
-       [1900,()=>drag(-130,300)],[2300,release]],3800)</script></body></html>
+   if(p<1)requestAnimationFrame(s);else{v=(to-from)/ms*1000*0.55;drag=false;}})(t0);}
+cycle([[500,()=>pull(196,430)],[1700,()=>pull(-172,320)]],3600)</script></body></html>

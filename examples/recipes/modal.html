@@ -1,20 +1,27 @@
 <!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><title>Modal</title>
-<link rel="stylesheet" href="_base.css"><style>.back{position:fixed;inset:0;background:oklch(10% .01 265/.62);opacity:0;
-  transition:opacity 300ms var(--out);pointer-events:none}
-.back.on{opacity:1}
-.sheet{position:fixed;inset:0;margin:auto;width:280px;height:150px;background:var(--panel);
-  border:1px solid var(--rule);border-radius:12px;padding:18px;opacity:0;
-  transform:scale(.94) translateY(8px);transform-origin:50% 78%;
+<link rel="stylesheet" href="_base.css"><style>.scrim{position:absolute;inset:0;background:oklch(8% .01 275/.66);opacity:0;
+  transition:opacity 300ms var(--out);z-index:3;backdrop-filter:blur(1.5px)}
+.sheet{position:absolute;left:50%;top:50%;width:310px;margin:-84px 0 0 -155px;z-index:4;
+  background:linear-gradient(168deg,var(--raise),var(--panel));border:1px solid var(--edge);
+  border-radius:13px;padding:19px;box-shadow:var(--shadow);opacity:0;
+  transform:scale(.93) translateY(10px);transform-origin:36% 84%;
   transition:opacity 300ms var(--out),transform 300ms var(--out)}
-.sheet.on{opacity:1;transform:none}
-.closing .back,.closing .sheet{transition-duration:240ms;transition-timing-function:var(--in)}</style></head><body>
-<div class="spec">enter <b>300ms ease-out</b> · exit <b>240ms ease-in</b> · origin at the trigger</div>
-<div class="stage"><button class="btn" id="t">Open dialog</button></div>
-<div class="back" id="bk"></div>
-<div class="sheet" id="sh"><h4>Discard build?</h4>
-<small>Artifacts from 4127 will be removed.</small>
-<div class="row" style="margin-top:22px"><button class="btn">Discard</button>
-<button class="btn ghost">Cancel</button></div></div>
-<script src="_loop.js"></script><script>const bk=$("#bk"),sh=$("#sh"),b=document.body;
-cycle([[400,()=>{b.classList.remove("closing");bk.classList.add("on");sh.classList.add("on")}],
-       [2100,()=>{b.classList.add("closing");bk.classList.remove("on");sh.classList.remove("on")}]],3400)</script></body></html>
+.on .scrim{opacity:1}.on .sheet{opacity:1;transform:none}
+.closing .scrim,.closing .sheet{transition-duration:240ms;transition-timing-function:var(--in)}
+.sheet .row{display:flex;gap:9px;margin-top:17px}</style></head><body>
+<div class="app" id="a"><div class="bar"><h1>Library</h1><div class="grow"></div>
+<span class="pill">62 sessions</span></div><div class="body"><div class="grid">
+<div class="tile"><div class="cv c1"></div><b>Nocturne</b><small>18 takes</small></div>
+<div class="tile"><div class="cv c2"></div><b>Solar Bloom</b><small>24 takes</small></div>
+<div class="tile"><div class="cv c3"></div><b>Deep Field</b><small>11 takes</small></div>
+<div class="tile"><div class="cv c4"></div><b>Verdant</b><small>9 takes</small></div></div></div>
+<div class="scrim"></div>
+<div class="sheet"><h2 style="font-size:16px">Delete “Solar Bloom”?</h2>
+<p class="dim" style="margin-top:7px">24 takes and all bounced masters will be
+removed. This cannot be undone.</p>
+<div class="row"><button class="btn">Delete session</button>
+<button class="btn ghost">Cancel</button></div></div></div>
+<div class="spec">enter <b>300ms ease-out</b> · exit <b>240ms ease-in</b> · grows from the trigger</div>
+<script src="_loop.js"></script><script>const a=$("#a");
+cycle([[500,()=>{a.classList.remove("closing");a.classList.add("on")}],
+       [2300,()=>{a.classList.add("closing");a.classList.remove("on")}]],3600)</script></body></html>

@@ -1,23 +1,53 @@
 <!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><title>Spring damping ratios</title>
-<link rel="stylesheet" href="_base.css"><style>.lane{display:grid;grid-template-columns:64px 1fr;align-items:center;gap:14px;
-  width:430px;margin-bottom:16px}
-.lane b{font:600 11px/1 ui-monospace,monospace;color:var(--faint);letter-spacing:.08em}
-.rail{position:relative;height:34px;background:var(--panel);border:1px solid var(--rule);
-  border-radius:8px}
-.pip{position:absolute;top:6px;left:6px;width:20px;height:20px;border-radius:6px;background:var(--accent)}
-.lane:nth-child(1) .pip{background:var(--warn)}
-.lane:nth-child(3) .pip{background:var(--muted)}</style></head><body>
-<div class="spec">same stiffness, three ζ · <b>0.58</b> bounces · <b>0.95</b> settles · <b>1.4</b> crawls</div>
-<div class="stage"><div>
-<div class="lane"><b>ζ 0.58</b><div class="rail"><div class="pip" id="p0"></div></div></div>
-<div class="lane"><b>ζ 0.95</b><div class="rail"><div class="pip" id="p1"></div></div></div>
-<div class="lane"><b>ζ 1.40</b><div class="rail"><div class="pip" id="p2"></div></div></div>
-</div></div>
-<script src="_loop.js"></script><script>const S=[{k:300,c:20,el:$("#p0")},{k:400,c:38,el:$("#p1")},{k:300,c:48,el:$("#p2")}];
-S.forEach(s=>{s.x=0;s.v=0});let target=0,last=performance.now();
-function loop(now){let dt=Math.min((now-last)/1000,1/30);last=now;
-  for(const s of S){s.v+=(-s.k*(s.x-target)-s.c*s.v)*dt;s.x+=s.v*dt;
-    s.el.style.transform=`translateX(${s.x.toFixed(2)}px)`;}
+<link rel="stylesheet" href="_base.css"><style>.body{padding:0;display:flex}
+.view{flex:1;position:relative;overflow:hidden;background:
+  radial-gradient(90% 80% at 50% 0%,oklch(17% .02 275),oklch(11% .012 275) 70%)}
+.side{width:150px;border-left:1px solid var(--line);padding:15px 14px;
+  display:flex;flex-direction:column;gap:13px}
+.rd .k{font:600 9.5px/1 ui-monospace,monospace;letter-spacing:.16em;text-transform:uppercase;
+  color:var(--faint)}
+.rd .v{font-size:17px;font-weight:650;letter-spacing:-.02em;margin-top:5px}
+.meter{height:4px;background:var(--sunk);border-radius:9px;overflow:hidden;margin-top:7px}
+.meter i{display:block;height:100%;width:0;background:var(--accent);border-radius:9px}
+canvas{position:absolute;inset:0;width:100%;height:100%}
+.lane{position:absolute;left:26px;right:26px;height:38px;border-radius:10px;
+  background:oklch(15% .014 275);border:1px solid var(--line)}
+.lane:nth-of-type(1){top:38px}.lane:nth-of-type(2){top:96px}.lane:nth-of-type(3){top:154px}
+.lane b{position:absolute;left:11px;top:-16px;font:600 9.5px/1 ui-monospace,monospace;
+  letter-spacing:.13em;color:var(--faint)}
+.pip{position:absolute;top:7px;left:7px;width:24px;height:24px;border-radius:7px;
+  box-shadow:0 6px 14px -6px rgb(0 0 0/.9)}
+.p0{background:linear-gradient(150deg,oklch(84% .14 62),oklch(58% .15 30))}
+.p1{background:linear-gradient(150deg,oklch(82% .13 330),oklch(56% .15 320))}
+.p2{background:linear-gradient(150deg,oklch(72% .04 275),oklch(46% .03 275))}</style></head><body>
+<div class="app"><div class="bar"><h1>Spring lab</h1><div class="grow"></div>
+<span class="pill">k = 300 · m = 1</span></div><div class="body">
+<div class="view">
+<div class="lane"><b>ζ 0.58 · PLAYFUL</b><div class="pip p0" id="p0"></div></div>
+<div class="lane"><b>ζ 0.95 · UI DEFAULT</b><div class="pip p1" id="p1"></div></div>
+<div class="lane"><b>ζ 1.40 · OVERDAMPED</b><div class="pip p2" id="p2"></div></div>
+</div>
+<div class="side">
+<div class="rd"><div class="k">Overshoot</div><div class="v" id="o">—</div></div>
+<div class="rd"><div class="k">Settle 0.58</div><div class="v" id="s0">—</div></div>
+<div class="rd"><div class="k">Settle 0.95</div><div class="v" id="s1">—</div></div>
+<div class="rd"><div class="k">Settle 1.40</div><div class="v" id="s2">—</div></div>
+</div></div></div>
+<div class="spec">same stiffness, three ζ · <b>0.58</b> overshoots · <b>0.95</b> settles · <b>1.40</b> crawls · tune ζ first</div>
+<script src="_loop.js"></script><script>const S=[{k:300,c:20,el:$("#p0"),o:$("#s0")},{k:300,c:33,el:$("#p1"),o:$("#s1")},
+        {k:300,c:48,el:$("#p2"),o:$("#s2")}];
+S.forEach(s=>{s.x=0;s.v=0;s.t=0;s.done=false;s.peak=0});
+let target=0,last=performance.now(),ov=$("#o");
+function loop(now){const dt=Math.min((now-last)/1000,1/30);last=now;
+  let maxOver=0;
+  for(const s of S){s.v+=(-s.k*(s.x-target)-s.c*s.v)*dt;s.x+=s.v*dt;s.t+=dt;
+    s.el.style.transform=`translateX(${s.x.toFixed(2)}px)`;
+    if(target>0){const over=Math.max(0,(s.x-target)/target*100);s.peak=Math.max(s.peak,over);
+      maxOver=Math.max(maxOver,s.peak);
+      if(!s.done&&Math.abs(s.x-target)<2&&Math.abs(s.v)<6){s.done=true;
+        s.o.textContent=Math.round(s.t*1000)+"ms";}}}
+  ov.textContent=maxOver>0.4?maxOver.toFixed(1)+"%":"—";
   requestAnimationFrame(loop);}
 requestAnimationFrame(loop);
-cycle([[400,()=>target=330],[2200,()=>target=0]],3800)</script></body></html>
+cycle([[400,()=>{target=352;S.forEach(s=>{s.t=0;s.done=false;s.peak=0;s.o.textContent="—"})}],
+       [2600,()=>{target=0;}]],4300)</script></body></html>

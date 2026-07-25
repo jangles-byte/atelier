@@ -1,19 +1,27 @@
 <!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><title>Skeleton → content</title>
-<link rel="stylesheet" href="_base.css"><style>.box{width:330px}
-.sk{height:14px;border-radius:5px;margin-bottom:10px;
-  background:linear-gradient(90deg,var(--panel) 25%,var(--raise) 37%,var(--panel) 63%);
-  background-size:400% 100%;animation:sweep 1.4s ease-in-out infinite}
-@keyframes sweep{to{background-position:-135% 0}}
-.real{transition:opacity 150ms var(--out)}
-.hide{opacity:0;position:absolute;pointer-events:none}</style></head><body>
-<div class="spec">sweep <b>1.4s</b> · swap <b>150ms crossfade</b> · only shown after 200ms of waiting</div>
-<div class="stage"><div class="box">
-<div id="sk"><div class="sk" style="width:60%"></div><div class="sk"></div>
-<div class="sk" style="width:80%"></div><div class="sk" style="width:45%"></div></div>
-<div id="rl" class="real hide"><h4 style="margin-bottom:8px">Build 4127</h4>
-<small>Compiled 1,482 modules in 41s. Uploaded 12.4 MB to the edge across 38 POPs
-with no cache misses on the critical path.</small></div>
-</div></div>
-<script src="_loop.js"></script><script>const sk=$("#sk"),rl=$("#rl");
-cycle([[1600,()=>{sk.classList.add("hide");rl.classList.remove("hide")}],
-       [3200,()=>{rl.classList.add("hide");sk.classList.remove("hide")}]],4400)</script></body></html>
+<link rel="stylesheet" href="_base.css"><style>.sk{background:linear-gradient(90deg,var(--panel) 25%,var(--raise) 38%,var(--panel) 62%);
+  background-size:400% 100%;animation:sw 1.4s ease-in-out infinite;border-radius:10px}
+@keyframes sw{to{background-position:-135% 0}}
+.sk.line{height:11px;border-radius:5px;margin-top:9px}
+.sk.sq{aspect-ratio:1;width:100%}
+.fade{transition:opacity 150ms var(--out)}
+.gone{opacity:0;position:absolute;inset:20px;pointer-events:none}</style></head><body>
+<div class="app"><div class="bar"><h1>Library</h1><div class="grow"></div>
+<span class="pill" id="p">loading</span></div>
+<div class="body" style="position:relative">
+<div class="grid fade" id="sk">
+<div><div class="sk sq"></div><div class="sk line" style="width:70%"></div><div class="sk line" style="width:44%"></div></div>
+<div><div class="sk sq"></div><div class="sk line" style="width:82%"></div><div class="sk line" style="width:38%"></div></div>
+<div><div class="sk sq"></div><div class="sk line" style="width:64%"></div><div class="sk line" style="width:50%"></div></div>
+<div><div class="sk sq"></div><div class="sk line" style="width:76%"></div><div class="sk line" style="width:42%"></div></div>
+</div>
+<div class="grid fade gone" id="rl">
+<div class="tile"><div class="cv c1"></div><b>Nocturne</b><small>18 takes</small></div>
+<div class="tile"><div class="cv c2"></div><b>Solar Bloom</b><small>24 takes</small></div>
+<div class="tile"><div class="cv c3"></div><b>Deep Field</b><small>11 takes</small></div>
+<div class="tile"><div class="cv c4"></div><b>Verdant</b><small>9 takes</small></div>
+</div></div></div>
+<div class="spec">sweep <b>1.4s</b> · swap <b>150ms crossfade</b> · geometry matches, so nothing reflows</div>
+<script src="_loop.js"></script><script>const sk=$("#sk"),rl=$("#rl"),p=$("#p");
+cycle([[1700,()=>{sk.classList.add("gone");rl.classList.remove("gone");p.textContent="62 sessions"}],
+       [3500,()=>{rl.classList.add("gone");sk.classList.remove("gone");p.textContent="loading"}]],4700)</script></body></html>

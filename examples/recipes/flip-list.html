@@ -1,22 +1,23 @@
 <!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><title>List reorder (FLIP)</title>
-<link rel="stylesheet" href="_base.css"><style>ul{list-style:none;width:280px;display:flex;flex-direction:column;gap:8px}
-li{background:var(--panel);border:1px solid var(--rule);border-radius:9px;
-  padding:11px 14px;font-size:13px;display:flex;justify-content:space-between}
-li i{font-style:normal;color:var(--faint);font-family:ui-monospace,monospace;font-size:11.5px}</style></head><body>
-<div class="spec">reorder <b>300ms ease-out</b>, no stagger · insert staggers <b>40ms</b></div>
-<div class="stage"><ul id="u"></ul></div>
+<link rel="stylesheet" href="_base.css"><style>.r{transition:border-color 200ms var(--out)}</style></head><body>
+<div class="app"><div class="bar"><h1>Queue</h1><div class="grow"></div>
+<span class="pill">re-sorting</span></div><div class="body"><div class="rows" id="u"></div></div></div>
+<div class="spec">reorder <b>300ms ease-out</b>, moving together so the swap reads as one event</div>
 <script src="_loop.js"></script><script>const u=$("#u");
-let items=[["payments","4127"],["auth-gateway","4126"],["indexer","4125"],["frontend","4124"]];
-function paint(){u.innerHTML="";items.forEach(([n,b])=>{const li=document.createElement("li");
-  li.innerHTML=`<span>${n}</span><i>#${b}</i>`;u.appendChild(li);});}
-function flip(mut){const kids=[...u.children];
-  const first=new Map(kids.map(e=>[e.textContent,e.getBoundingClientRect()]));
+let items=[["c2","Solar Bloom","24-bit · 96kHz","04:12"],["c1","Nocturne","24-bit · 48kHz","03:26"],
+ ["c3","Deep Field","32-bit float","05:44"],["c5","Umbra","24-bit · 48kHz","03:38"],
+ ["c6","Ember","24-bit · 96kHz","04:57"]];
+function paint(){u.innerHTML="";items.forEach(([c,n,m,t])=>{const d=document.createElement("div");
+  d.className="r";d.dataset.k=n;
+  d.innerHTML=`<div class="cv ${c}"></div><div><b>${n}</b><small>${m}</small></div><i>${t}</i>`;
+  u.appendChild(d);});}
+function flip(mut){const first=new Map([...u.children].map(e=>[e.dataset.k,e.getBoundingClientRect()]));
   mut();
-  [...u.children].forEach(e=>{const a=first.get(e.textContent);if(!a)return;
-    const b=e.getBoundingClientRect(),dy=a.top-b.top;if(!dy)return;
+  [...u.children].forEach(e=>{const a=first.get(e.dataset.k);if(!a)return;
+    const dy=a.top-e.getBoundingClientRect().top;if(!dy)return;
     e.animate([{transform:`translateY(${dy}px)`},{transform:"none"}],
       {duration:300,easing:"cubic-bezier(0.22,1,0.36,1)"});});}
 paint();
-cycle([[600,()=>flip(()=>{items.unshift(items.pop());paint();})],
-       [1900,()=>flip(()=>{items.push(items.shift());items.reverse();paint();})],
-       [3200,()=>flip(()=>{items.sort((a,b)=>a[1]<b[1]?1:-1);paint();})]],4400)</script></body></html>
+cycle([[700,()=>flip(()=>{items.unshift(items.pop());paint();})],
+       [2100,()=>flip(()=>{items.sort((a,b)=>a[3]<b[3]?1:-1);paint();})],
+       [3400,()=>flip(()=>{items.reverse();paint();})]],4700)</script></body></html>

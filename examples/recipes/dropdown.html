@@ -1,16 +1,24 @@
 <!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><title>Dropdown</title>
-<link rel="stylesheet" href="_base.css"><style>.wrap{position:relative}
-.menu{position:absolute;top:46px;left:0;width:180px;background:var(--panel);
-  border:1px solid var(--rule);border-radius:10px;padding:6px;
-  transform-origin:top left;opacity:0;transform:scale(.96) translateY(-4px);
+<link rel="stylesheet" href="_base.css"><style>.anchor{position:relative}
+.menu{position:absolute;top:38px;right:0;width:172px;z-index:5;padding:5px;
+  background:linear-gradient(160deg,var(--raise),var(--panel));border:1px solid var(--edge);
+  border-radius:11px;box-shadow:var(--shadow);transform-origin:top right;
+  opacity:0;transform:scale(.95) translateY(-5px);
   transition:opacity 150ms var(--out),transform 150ms var(--out)}
 .menu.on{opacity:1;transform:none}
-.menu div{padding:8px 10px;border-radius:6px;font-size:13px;color:var(--muted)}
-.menu div.sel{background:var(--raise);color:var(--text)}</style></head><body>
-<div class="spec"><b>150ms</b> both ways · origin at the anchored edge · no stagger</div>
-<div class="stage"><div class="wrap">
-<button class="btn ghost" id="t">Environment ▾</button>
-<div class="menu" id="m"><div class="sel">Production</div><div>Staging</div>
-<div>Preview</div><div>Local</div></div></div></div>
+.menu div{padding:7px 9px;border-radius:7px;font-size:12.5px;color:var(--muted);
+  display:flex;justify-content:space-between}
+.menu div.sel{background:var(--raise);color:var(--text)}
+.menu div.sel::after{content:"✓";color:var(--accent)}</style></head><body>
+<div class="app"><div class="bar"><h1>Library</h1><div class="grow"></div>
+<div class="anchor"><button class="btn ghost" style="height:30px;font-size:12px">Sort ▾</button>
+<div class="menu" id="m"><div class="sel">Recently opened</div><div>Date created</div>
+<div>Name</div><div>Take count</div></div></div></div>
+<div class="body"><div class="grid">
+<div class="tile"><div class="cv c1"></div><b>Nocturne</b><small>18 takes</small></div>
+<div class="tile"><div class="cv c2"></div><b>Solar Bloom</b><small>24 takes</small></div>
+<div class="tile"><div class="cv c3"></div><b>Deep Field</b><small>11 takes</small></div>
+<div class="tile"><div class="cv c4"></div><b>Verdant</b><small>9 takes</small></div></div></div></div>
+<div class="spec"><b>150ms</b> both ways · origin at the anchored edge · arrives as one block</div>
 <script src="_loop.js"></script><script>const m=$("#m");
-cycle([[350,()=>m.classList.add("on")],[1750,()=>m.classList.remove("on")]],2800)</script></body></html>
+cycle([[400,()=>m.classList.add("on")],[1900,()=>m.classList.remove("on")]],2900)</script></body></html>

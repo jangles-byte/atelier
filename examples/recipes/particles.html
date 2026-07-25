@@ -1,22 +1,50 @@
 <!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><title>Particles</title>
-<link rel="stylesheet" href="_base.css"><style>canvas{border-radius:12px;background:oklch(13% .014 265);border:1px solid var(--rule)}</style></head><body>
-<div class="spec">pooled <b>256</b> · vary speed, size and life · quadratic fade · cone toward the normal</div>
-<div class="stage"><canvas id="c" width="460" height="220"></canvas></div>
-<script src="_loop.js"></script><script>const c=$("#c"),x=c.getContext("2d"),W=460,H=220;
-const P=Array.from({length:256},()=>({a:false}));
+<link rel="stylesheet" href="_base.css"><style>.body{padding:0;display:flex}
+.view{flex:1;position:relative;overflow:hidden;background:
+  radial-gradient(90% 80% at 50% 0%,oklch(17% .02 275),oklch(11% .012 275) 70%)}
+.side{width:150px;border-left:1px solid var(--line);padding:15px 14px;
+  display:flex;flex-direction:column;gap:13px}
+.rd .k{font:600 9.5px/1 ui-monospace,monospace;letter-spacing:.16em;text-transform:uppercase;
+  color:var(--faint)}
+.rd .v{font-size:17px;font-weight:650;letter-spacing:-.02em;margin-top:5px}
+.meter{height:4px;background:var(--sunk);border-radius:9px;overflow:hidden;margin-top:7px}
+.meter i{display:block;height:100%;width:0;background:var(--accent);border-radius:9px}
+canvas{position:absolute;inset:0;width:100%;height:100%}</style></head><body>
+<div class="app"><div class="bar"><h1>Emitter</h1><div class="grow"></div>
+<span class="pill">pooled · zero alloc</span></div><div class="body">
+<div class="view"><canvas id="c"></canvas></div>
+<div class="side">
+<div class="rd"><div class="k">Live</div><div class="v" id="n">0</div>
+  <div class="meter"><i id="m"></i></div></div>
+<div class="rd"><div class="k">Burst</div><div class="v">15 – 44</div></div>
+<div class="rd"><div class="k">Life</div><div class="v">0.4 – 0.95s</div></div>
+</div></div></div>
+<div class="spec">pooled <b>512</b> · vary speed, size and life or it reads as a machine · quadratic fade · cone toward the normal</div>
+<script src="_loop.js"></script><script>const c=$("#c"),x=c.getContext("2d");let W,H;
+function fit(){const r=c.getBoundingClientRect();W=c.width=r.width*2;H=c.height=r.height*2;}
+setTimeout(fit,0);addEventListener("resize",fit);
+const P=Array.from({length:512},()=>({a:false}));
 function emit(px,py,n,dir){for(const p of P){if(n<=0)break;if(p.a)continue;
-  const ang=dir+(Math.random()-.5)*1.2,sp=70+Math.random()*260;
+  const ang=dir+(Math.random()-.5)*1.25,sp=(120+Math.random()*430);
   Object.assign(p,{a:true,x:px,y:py,vx:Math.cos(ang)*sp,vy:Math.sin(ang)*sp,
-    l:0,m:.4+Math.random()*.55,r:1.4+Math.random()*3.4,h:Math.random()<.3?60:265});n--;}}
+    l:0,m:.4+Math.random()*.55,r:1.6+Math.random()*4.2,
+    h:Math.random()<.34?62:330});n--;}}
 let last=performance.now();
 function loop(now){const dt=Math.min((now-last)/1000,1/30);last=now;
-  x.clearRect(0,0,W,H);
-  for(const p of P){if(!p.a)continue;p.l+=dt;if(p.l>=p.m){p.a=false;continue;}
-    p.vy+=620*dt;const d=Math.pow(.16,dt);p.vx*=d;p.vy*=d;p.x+=p.vx*dt;p.y+=p.vy*dt;
-    const u=p.l/p.m,al=(1-u)*(1-u);
-    x.globalAlpha=al;x.fillStyle=`oklch(${72+p.h*.02}% .16 ${p.h})`;
-    x.beginPath();x.arc(p.x,p.y,p.r*(1-u*.55),0,6.283);x.fill();}
-  x.globalAlpha=1;requestAnimationFrame(loop);}
+  if(!W){requestAnimationFrame(loop);return;}
+  x.clearRect(0,0,W,H);x.globalCompositeOperation="lighter";
+  let live=0;
+  for(const p of P){if(!p.a)continue;p.l+=dt;
+    if(p.l>=p.m){p.a=false;continue;}live++;
+    p.vy+=980*dt;const d=Math.pow(.17,dt);p.vx*=d;p.vy*=d;p.x+=p.vx*dt;p.y+=p.vy*dt;
+    const u=p.l/p.m,al=(1-u)*(1-u),rr=p.r*(1-u*.5)*2;
+    const g=x.createRadialGradient(p.x,p.y,0,p.x,p.y,rr*2.6);
+    g.addColorStop(0,`oklch(${86}% .17 ${p.h} / ${al})`);
+    g.addColorStop(1,`oklch(58% .16 ${p.h} / 0)`);
+    x.fillStyle=g;x.beginPath();x.arc(p.x,p.y,rr*2.6,0,6.283);x.fill();}
+  x.globalCompositeOperation="source-over";
+  $("#n").textContent=live;$("#m").style.width=(live/180*100)+"%";
+  requestAnimationFrame(loop);}
 requestAnimationFrame(loop);
-cycle([[500,()=>emit(150,120,30,-0.6)],[1500,()=>emit(320,140,30,-2.4)],
-       [2500,()=>emit(230,100,44,-1.57)]],3800)</script></body></html>
+cycle([[500,()=>emit(W*.32,H*.62,30,-0.75)],[1500,()=>emit(W*.68,H*.55,30,-2.3)],
+       [2500,()=>emit(W*.5,H*.42,44,-1.57)]],3900)</script></body></html>

@@ -1,17 +1,18 @@
 <!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><title>Press & hover</title>
-<link rel="stylesheet" href="_base.css"><style>.btn,.card{transition:transform 130ms var(--back),background-color 130ms var(--out),
-  box-shadow 130ms var(--out),border-color 130ms var(--out)}
-.btn.h{background:oklch(84% 0.13 265);transform:translateY(-1px);box-shadow:0 6px 16px rgb(0 0 0/.4)}
-.btn.p{transform:scale(.96) translateY(0);transition-duration:80ms}
-.card{width:190px}.card.h{transform:translateY(-2px) scale(1.006);border-color:oklch(45% 0.06 265)}
-.card.p{transform:scale(.984);transition-duration:80ms}</style></head><body>
-<div class="spec">press <b>80ms</b> · release <b>130ms ease-back</b> · lift + shadow + colour</div>
-<div class="stage"><div class="row" style="gap:26px">
-<button class="btn" id="b">Deploy</button>
-<div class="card" id="c"><h4>Build 4127</h4><small>ready to ship</small></div>
-</div></div>
-<script src="_loop.js"></script><script>const b=$("#b"),c=$("#c");
-cycle([[300,()=>{b.classList.add("h");c.classList.add("h")}],
-       [900,()=>{b.classList.add("p");c.classList.add("p")}],
-       [1050,()=>{b.classList.remove("p");c.classList.remove("p")}],
-       [1700,()=>{b.classList.remove("h");c.classList.remove("h")}]],2600)</script></body></html>
+<link rel="stylesheet" href="_base.css"><style>.tile .cv{transition:transform 130ms var(--back),box-shadow 130ms var(--out),
+  filter 130ms var(--out)}
+.tile b,.tile small{transition:color 130ms var(--out)}
+.tile.h .cv{transform:translateY(-4px) scale(1.014);box-shadow:0 20px 34px -16px rgb(0 0 0/.9);
+  filter:saturate(1.12) brightness(1.06)}
+.tile.h b{color:var(--accent)}
+.tile.p .cv{transform:translateY(-1px) scale(.985);transition-duration:80ms}</style></head><body>
+<div class="app"><div class="bar"><h1>Library</h1><div class="grow"></div>
+<span class="pill">62 sessions</span></div><div class="body"><div class="grid">
+<div class="tile"><div class="cv c1"></div><b>Nocturne</b><small>18 takes</small></div>
+<div class="tile"><div class="cv c2"></div><b>Solar Bloom</b><small>24 takes</small></div>
+<div class="tile"><div class="cv c3"></div><b>Deep Field</b><small>11 takes</small></div>
+<div class="tile"><div class="cv c4"></div><b>Verdant</b><small>9 takes</small></div></div></div></div>
+<div class="spec">press <b>80ms</b> · release <b>130ms ease-back</b> · lift + shadow + edge, never opacity</div>
+<script src="_loop.js"></script><script>const t=$$(".tile")[1];
+cycle([[350,()=>t.classList.add("h")],[950,()=>t.classList.add("p")],
+       [1100,()=>t.classList.remove("p")],[1900,()=>t.classList.remove("h")]],2700)</script></body></html>

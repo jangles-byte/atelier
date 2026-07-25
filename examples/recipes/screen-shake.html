@@ -1,27 +1,45 @@
 <!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><title>Screen shake</title>
-<link rel="stylesheet" href="_base.css"><style>.win{width:420px;height:210px;overflow:hidden;border-radius:12px;border:1px solid var(--rule);
-  background:oklch(13% .014 265);display:grid;place-items:center}
-.world{display:grid;place-items:center;gap:10px}
-.blk{width:74px;height:74px;border-radius:12px;background:var(--accent)}
-.blk.hit{background:oklch(96% .05 60)}
-.tr{width:200px;height:4px;background:var(--panel);border-radius:9px;overflow:hidden;margin-top:14px}
-.tr i{display:block;height:100%;background:var(--hot);width:0%}</style></head><body>
-<div class="spec">trauma decays <b>1.4/s</b> · amplitude ∝ <b>trauma²</b> · smooth noise, never random</div>
-<div class="stage"><div><div class="win"><div class="world" id="w">
-<div class="blk" id="b"></div></div></div>
-<div class="tr"><i id="t"></i></div></div></div>
-<script src="_loop.js"></script><script>const w=$("#w"),b=$("#b"),tb=$("#t");
-const perm=Array.from({length:256},()=>Math.random());
-const nz=v=>{const i=Math.floor(v),f=v-i,s=f*f*(3-2*f);
-  return perm[i&255]*(1-s)+perm[(i+1)&255]*s;};
-let trauma=0,t=0,last=performance.now();
+<link rel="stylesheet" href="_base.css"><style>.body{padding:0;display:flex}
+.view{flex:1;position:relative;overflow:hidden;background:
+  radial-gradient(90% 80% at 50% 0%,oklch(17% .02 275),oklch(11% .012 275) 70%)}
+.side{width:150px;border-left:1px solid var(--line);padding:15px 14px;
+  display:flex;flex-direction:column;gap:13px}
+.rd .k{font:600 9.5px/1 ui-monospace,monospace;letter-spacing:.16em;text-transform:uppercase;
+  color:var(--faint)}
+.rd .v{font-size:17px;font-weight:650;letter-spacing:-.02em;margin-top:5px}
+.meter{height:4px;background:var(--sunk);border-radius:9px;overflow:hidden;margin-top:7px}
+.meter i{display:block;height:100%;width:0;background:var(--accent);border-radius:9px}
+canvas{position:absolute;inset:0;width:100%;height:100%}
+.world{position:absolute;inset:0;display:grid;place-items:center;will-change:transform}
+.subj{width:104px;height:104px;border-radius:20px;
+  background:radial-gradient(120% 110% at 30% 24%,oklch(80% .15 330),oklch(42% .14 318));
+  box-shadow:0 22px 44px -18px rgb(0 0 0/.9)}
+.subj.hit{background:radial-gradient(120% 110% at 30% 24%,oklch(97% .05 80),oklch(78% .13 62))}
+.floor{position:absolute;left:0;right:0;bottom:34px;height:1px;background:var(--line)}</style></head><body>
+<div class="app"><div class="bar"><h1>Impact</h1><div class="grow"></div>
+<span class="pill">camera only · UI never shakes</span></div><div class="body">
+<div class="view"><div class="world" id="w"><div class="floor"></div>
+<div class="subj" id="s"></div></div></div>
+<div class="side">
+<div class="rd"><div class="k">Trauma</div><div class="v" id="t">0.00</div>
+  <div class="meter"><i id="m" style="background:var(--warn)"></i></div></div>
+<div class="rd"><div class="k">Amplitude</div><div class="v" id="a">0.0px</div></div>
+<div class="rd"><div class="k">Rotation</div><div class="v" id="r">0.0°</div></div>
+</div></div></div>
+<div class="spec">trauma decays <b>1.4/s</b> · amplitude ∝ <b>trauma²</b> · smooth noise, never <code>Math.random()</code></div>
+<script src="_loop.js"></script><script>const w=$("#w"),s=$("#s"),tv=$("#t"),mv=$("#m"),av=$("#a"),rv=$("#r");
+const pr=Array.from({length:256},()=>Math.random());
+const nz=v=>{const i=Math.floor(v),f=v-i,k=f*f*(3-2*f);
+  return pr[i&255]*(1-k)+pr[(i+1)&255]*k;};
+let tr=0,t=0,last=performance.now();
 function loop(now){const dt=Math.min((now-last)/1000,1/30);last=now;t+=dt;
-  trauma=Math.max(0,trauma-dt*1.4);const s=trauma*trauma;
-  w.style.transform=`translate(${(nz(t*26)*2-1)*17*s}px,${(nz(t*26+50)*2-1)*17*s}px)
-    rotate(${(nz(t*26+90)*2-1)*1.7*s}deg)`;
-  tb.style.width=(trauma*100).toFixed(0)+"%";
+  tr=Math.max(0,tr-dt*1.4);const q=tr*tr;
+  const dx=(nz(t*26)*2-1)*20*q,dy=(nz(t*26+40)*2-1)*20*q,rot=(nz(t*26+90)*2-1)*1.9*q;
+  w.style.transform=`translate(${dx}px,${dy}px) rotate(${rot}deg)`;
+  tv.textContent=tr.toFixed(2);mv.style.width=(tr*100)+"%";
+  av.textContent=Math.abs(dx).toFixed(1)+"px";rv.textContent=Math.abs(rot).toFixed(1)+"°";
   requestAnimationFrame(loop);}
 requestAnimationFrame(loop);
-function hit(a){trauma=Math.min(1,trauma+a);b.classList.add("hit");
-  setTimeout(()=>b.classList.remove("hit"),70);}
-cycle([[500,()=>hit(0.25)],[1500,()=>hit(0.45)],[2600,()=>hit(0.85)]],4200)</script></body></html>
+function hit(a){tr=Math.min(1,tr+a);s.classList.add("hit");
+  setTimeout(()=>s.classList.remove("hit"),70);}
+cycle([[600,()=>hit(.24)],[1700,()=>hit(.46)],[2900,()=>hit(.88)]],4400)</script></body></html>

@@ -1,25 +1,35 @@
 <!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><title>Tabs</title>
-<link rel="stylesheet" href="_base.css"><style>.tabs{width:360px}
-.list{position:relative;display:flex;gap:26px;border-bottom:1px solid var(--rule);padding-bottom:11px}
-.list b{font-size:13.5px;font-weight:500;color:var(--faint);cursor:pointer;transition:color 200ms var(--out)}
-.list b.on{color:var(--text);font-weight:600}
-.ind{position:absolute;bottom:-1px;left:0;height:2px;width:60px;background:var(--accent);
-  transition:transform 250ms var(--out),width 250ms var(--out)}
-.body{margin-top:16px;color:var(--muted);font-size:13px;min-height:42px}
-.body p{transition:opacity 150ms var(--out)}</style></head><body>
-<div class="spec">indicator slides <b>250ms ease-out</b> · content crossfades <b>150ms</b></div>
-<div class="stage"><div class="tabs">
-<div class="list" id="l"><b class="on">Overview</b><b>Metrics</b><b>Logs</b>
+<link rel="stylesheet" href="_base.css"><style>.tabs{position:relative;display:flex;gap:24px;padding:0 20px;
+  border-bottom:1px solid var(--line)}
+.tabs b{font-size:12.5px;font-weight:500;color:var(--faint);padding-bottom:11px;cursor:pointer;
+  transition:color 200ms var(--out)}
+.tabs b.on{color:var(--text);font-weight:650}
+.ind{position:absolute;bottom:-1px;left:20px;height:2px;background:var(--accent);
+  border-radius:2px;transition:transform 250ms var(--out),width 250ms var(--out)}
+.pane{transition:opacity 150ms var(--out)}</style></head><body>
+<div class="app"><div class="bar"><h1>Studio</h1><div class="grow"></div>
+<span class="pill" id="cnt">62 sessions</span></div>
+<div class="tabs" id="tb"><b class="on">Sessions</b><b>Masters</b><b>Archive</b>
 <span class="ind" id="ind"></span></div>
-<div class="body"><p id="p">Deployment 4127 is live in three regions.</p></div>
-</div></div>
-<script src="_loop.js"></script><script>const tabs=$$(".list b"),ind=$("#ind"),p=$("#p");
-const TXT=["Deployment 4127 is live in three regions.",
-           "p50 41ms · p95 118ms · 0 errors in the last hour.",
-           "14,208 lines since the last deploy. No warnings."];
+<div class="body"><div class="pane" id="p"></div></div></div>
+<div class="spec">indicator slides <b>250ms ease-out</b> — the travel is the information · content crossfades <b>150ms</b></div>
+<script src="_loop.js"></script><script>const P=[
+ `<div class="grid"><div class="tile"><div class="cv c1"></div><b>Nocturne</b><small>18 takes</small></div>
+  <div class="tile"><div class="cv c2"></div><b>Solar Bloom</b><small>24 takes</small></div>
+  <div class="tile"><div class="cv c3"></div><b>Deep Field</b><small>11 takes</small></div>
+  <div class="tile"><div class="cv c4"></div><b>Verdant</b><small>9 takes</small></div></div>`,
+ `<div class="rows"><div class="r"><div class="cv c2"></div><div><b>Solar Bloom — master</b>
+   <small>24-bit · 96kHz</small></div><i>04:12</i></div>
+  <div class="r"><div class="cv c5"></div><div><b>Umbra — master</b><small>24-bit · 48kHz</small></div><i>03:38</i></div>
+  <div class="r"><div class="cv c6"></div><div><b>Ember — master</b><small>32-bit float</small></div><i>05:01</i></div></div>`,
+ `<div class="rows"><div class="r"><div class="cv c3"></div><div><b>Deep Field '24</b>
+   <small>archived 3 months ago</small></div><i>11 takes</i></div>
+  <div class="r"><div class="cv c4"></div><div><b>Verdant demos</b><small>archived 8 months ago</small></div><i>9 takes</i></div></div>`];
+const tabs=$$(".tabs b"),ind=$("#ind"),p=$("#p"),cnt=$("#cnt");
+const N=["62 sessions","12 masters","28 archived"];
 function go(i){tabs.forEach((t,j)=>t.classList.toggle("on",i===j));
-  const r=tabs[i].getBoundingClientRect(),pr=$("#l").getBoundingClientRect();
-  ind.style.width=r.width+"px";ind.style.transform=`translateX(${r.left-pr.left}px)`;
-  p.style.opacity=0;setTimeout(()=>{p.textContent=TXT[i];p.style.opacity=1},150);}
-go(0);
-cycle([[700,()=>go(1)],[1900,()=>go(2)],[3100,()=>go(0)]],4300)</script></body></html>
+  const r=tabs[i].getBoundingClientRect(),pr=$("#tb").getBoundingClientRect();
+  ind.style.width=r.width+"px";ind.style.transform=`translateX(${r.left-pr.left-20}px)`;
+  p.style.opacity=0;setTimeout(()=>{p.innerHTML=P[i];cnt.textContent=N[i];p.style.opacity=1},150);}
+p.innerHTML=P[0];go(0);
+cycle([[800,()=>go(1)],[2100,()=>go(2)],[3400,()=>go(0)]],4700)</script></body></html>

@@ -1,22 +1,30 @@
 <!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><title>Route transition</title>
-<link rel="stylesheet" href="_base.css"><style>.view{position:absolute;inset:0;background:var(--panel);border:1px solid var(--rule);
-  border-radius:12px;padding:20px;display:grid;align-content:start;gap:8px}
-.frame{position:relative;width:420px;height:200px;overflow:hidden;border-radius:12px}
-.crumb{font:500 11px/1 ui-monospace,monospace;letter-spacing:.14em;
-  text-transform:uppercase;color:var(--faint)}</style></head><body>
-<div class="spec">old out <b>180ms ease-in</b> · new in <b>260ms ease-out</b> · direction = depth</div>
-<div class="stage"><div class="frame" id="f">
-<div class="view" id="a"><div class="crumb">/ deployments</div>
-<h4 style="font-size:19px">All deployments</h4>
-<small>4127 · 4126 · 4125 · 4124</small></div>
-<div class="view" id="b" style="display:none"><div class="crumb">/ deployments / 4127</div>
-<h4 style="font-size:19px">Build 4127</h4><small>us-east · shipped 41s ago</small></div>
+<link rel="stylesheet" href="_base.css"><style>.view{position:absolute;inset:0;padding:20px}
+.crumb{font:600 10px/1 ui-monospace,monospace;letter-spacing:.15em;text-transform:uppercase;
+  color:var(--faint);margin-bottom:12px}
+.det{display:grid;grid-template-columns:126px 1fr;gap:16px}
+.det .cv{width:126px;aspect-ratio:1}</style></head><body>
+<div class="app"><div class="bar"><h1>Studio</h1><div class="grow"></div>
+<span class="pill" id="p">library</span></div>
+<div class="body" style="position:relative;overflow:hidden">
+<div class="view" id="a"><div class="crumb">/ sessions</div>
+<div class="grid"><div class="tile"><div class="cv c1"></div><b>Nocturne</b><small>18 takes</small></div>
+<div class="tile"><div class="cv c2"></div><b>Solar Bloom</b><small>24 takes</small></div>
+<div class="tile"><div class="cv c3"></div><b>Deep Field</b><small>11 takes</small></div>
+<div class="tile"><div class="cv c4"></div><b>Verdant</b><small>9 takes</small></div></div></div>
+<div class="view" id="b" style="display:none"><div class="crumb">/ sessions / solar-bloom</div>
+<div class="det"><div class="cv c2"></div><div><h2>Solar Bloom</h2>
+<p class="dim" style="margin-top:6px">Recorded over three evenings. 24 takes,
+ordered by the engineer's rating rather than by date.</p>
+<div class="rows" style="margin-top:12px"><div class="r" style="padding:7px 10px">
+<div><b>Take 14 — keeper</b></div><i>04:12</i></div></div></div></div></div>
 </div></div>
-<script src="_loop.js"></script><script>const a=$("#a"),b=$("#b");
-const OUT={duration:180,easing:"cubic-bezier(0.55,0,1,0.45)",fill:"both"};
-const IN={duration:260,easing:"cubic-bezier(0.22,1,0.36,1)",fill:"both"};
-function go(from,to,dir){ /* drill-in slides left, back slides right */
-  from.animate([{opacity:1,transform:"none"},{opacity:0,transform:`translateX(${-26*dir}px)`}],OUT);
-  setTimeout(()=>{from.style.display="none";to.style.display="grid";
-    to.animate([{opacity:0,transform:`translateX(${34*dir}px)`},{opacity:1,transform:"none"}],IN);},130);}
-cycle([[600,()=>go(a,b,1)],[2300,()=>go(b,a,-1)]],3800)</script></body></html>
+<div class="spec">old out <b>180ms ease-in</b> · new in <b>260ms ease-out</b> · direction encodes depth</div>
+<script src="_loop.js"></script><script>const a=$("#a"),b=$("#b"),p=$("#p");
+const O={duration:180,easing:"cubic-bezier(0.55,0,1,0.45)",fill:"both"};
+const I={duration:260,easing:"cubic-bezier(0.22,1,0.36,1)",fill:"both"};
+function go(f,t,dir,label){f.animate([{opacity:1,transform:"none"},
+   {opacity:0,transform:`translateX(${-30*dir}px)`}],O);
+  setTimeout(()=>{f.style.display="none";t.style.display="block";p.textContent=label;
+   t.animate([{opacity:0,transform:`translateX(${38*dir}px)`},{opacity:1,transform:"none"}],I);},135);}
+cycle([[700,()=>go(a,b,1,"session")],[2600,()=>go(b,a,-1,"library")]],4100)</script></body></html>

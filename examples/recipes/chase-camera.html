@@ -1,19 +1,44 @@
 <!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><title>Chase camera</title>
-<link rel="stylesheet" href="_base.css"><style>.win{width:440px;height:190px;overflow:hidden;border-radius:12px;border:1px solid var(--rule);
-  background:oklch(13% .014 265);position:relative}
-.grid{position:absolute;inset:-200px;background-image:linear-gradient(oklch(24% .02 265) 1px,transparent 1px),
-  linear-gradient(90deg,oklch(24% .02 265) 1px,transparent 1px);background-size:44px 44px}
-.act{position:absolute;top:74px;left:0;width:30px;height:30px;border-radius:9px;background:var(--accent)}
-.tag{position:absolute;left:14px;bottom:10px;font:500 10.5px/1 ui-monospace,monospace;color:var(--faint)}</style></head><body>
-<div class="spec"><b>pos = target + (pos−target)·e^(−k·dt)</b> · frame-rate independent · k=6 loose, k=15 tight</div>
-<div class="stage"><div class="win">
-<div class="grid" id="g"></div><div class="act" id="a"></div>
-<div class="tag">camera k = 6</div></div></div>
-<script src="_loop.js"></script><script>const g=$("#g"),a=$("#a");let ax=40,cam=0,dir=1,last=performance.now();
+<link rel="stylesheet" href="_base.css"><style>.body{padding:0;display:flex}
+.view{flex:1;position:relative;overflow:hidden;background:
+  radial-gradient(90% 80% at 50% 0%,oklch(17% .02 275),oklch(11% .012 275) 70%)}
+.side{width:150px;border-left:1px solid var(--line);padding:15px 14px;
+  display:flex;flex-direction:column;gap:13px}
+.rd .k{font:600 9.5px/1 ui-monospace,monospace;letter-spacing:.16em;text-transform:uppercase;
+  color:var(--faint)}
+.rd .v{font-size:17px;font-weight:650;letter-spacing:-.02em;margin-top:5px}
+.meter{height:4px;background:var(--sunk);border-radius:9px;overflow:hidden;margin-top:7px}
+.meter i{display:block;height:100%;width:0;background:var(--accent);border-radius:9px}
+canvas{position:absolute;inset:0;width:100%;height:100%}
+.grid2{position:absolute;inset:-260px;background-image:
+  linear-gradient(oklch(21% .015 275) 1px,transparent 1px),
+  linear-gradient(90deg,oklch(21% .015 275) 1px,transparent 1px);background-size:46px 46px}
+.act{position:absolute;top:50%;margin-top:-19px;left:0;width:38px;height:38px;border-radius:11px;
+  background:linear-gradient(150deg,oklch(82% .13 330),oklch(52% .15 320));
+  box-shadow:0 12px 24px -9px rgb(0 0 0/.9)}
+.cross{position:absolute;left:50%;top:50%;width:1px;height:100%;margin-top:-50%;
+  background:oklch(30% .02 275)}</style></head><body>
+<div class="app"><div class="bar"><h1>Follow</h1><div class="grow"></div>
+<span class="pill">k = 6</span></div><div class="body">
+<div class="view"><div class="grid2" id="g"></div><div class="cross"></div>
+<div class="act" id="a"></div></div>
+<div class="side">
+<div class="rd"><div class="k">Actor x</div><div class="v" id="ax">0</div></div>
+<div class="rd"><div class="k">Camera x</div><div class="v" id="cx">0</div></div>
+<div class="rd"><div class="k">Lag</div><div class="v" id="lg">0</div>
+  <div class="meter"><i id="m"></i></div></div>
+</div></div></div>
+<div class="spec">exponential smoothing · <b>k = 6</b> · frame-rate independent, unlike <code>pos += d*0.1</code></div>
+<script src="_loop.js"></script><script>const g=$("#g"),a=$("#a"),ax=$("#ax"),cx=$("#cx"),lg=$("#lg"),m=$("#m");
+let x=60,cam=0,dir=1,last=performance.now();
 function loop(now){const dt=Math.min((now-last)/1000,1/30);last=now;
-  ax+=dir*260*dt; if(ax>760){dir=-1} if(ax<40){dir=1}
-  cam = ax-190 + (cam-(ax-190))*Math.exp(-6*dt);   /* exponential smoothing */
+  x+=dir*300*dt; if(x>860)dir=-1; if(x<60)dir=1;
+  const want=x-230;
+  cam = want + (cam-want)*Math.exp(-6*dt);
   g.style.transform=`translateX(${-cam}px)`;
-  a.style.transform=`translateX(${ax-cam}px)`;
+  a.style.transform=`translateX(${x-cam}px)`;
+  ax.textContent=Math.round(x);cx.textContent=Math.round(cam);
+  const lag=Math.abs(x-230-cam);lg.textContent=Math.round(lag);
+  m.style.width=Math.min(100,lag/70*100)+"%";
   requestAnimationFrame(loop);}
 requestAnimationFrame(loop);</script></body></html>

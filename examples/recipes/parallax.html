@@ -1,23 +1,27 @@
 <!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><title>Parallax</title>
-<link rel="stylesheet" href="_base.css"><style>.win{width:420px;height:230px;overflow:hidden;position:relative;border-radius:12px;
-  border:1px solid var(--rule);background:oklch(13% .02 265)}
-.lyr{position:absolute;inset:-40px;will-change:transform}
-.l1{background:radial-gradient(60% 50% at 30% 40%,oklch(40% .13 285/.55),transparent 70%)}
-.l2{background:radial-gradient(50% 45% at 72% 62%,oklch(52% .14 200/.5),transparent 70%)}
-.fg{position:relative;padding:26px;z-index:2}
-.fg h4{font-size:22px;letter-spacing:-.02em}</style></head><body>
-<div class="spec">back layer <b>18%</b> of scroll · transforms only · off under reduced-motion</div>
-<div class="stage"><div class="win" id="w">
-<div class="lyr l1" id="a"></div><div class="lyr l2" id="b"></div>
-<div class="fg"><h4>Edge network</h4><small>38 points of presence</small></div>
-</div></div>
-<script src="_loop.js"></script><script>const a=$("#a"),b=$("#b"),fg=document.querySelector(".fg");
-function at(p){ /* p 0..1 of a virtual scroll */
-  a.style.transform=`translateY(${-p*42}px)`;      /* 18% */
-  b.style.transform=`translateY(${-p*74}px)`;      /* 31% */
-  fg.style.transform=`translateY(${-p*120}px)`;}   /* content: full rate */
-let raf;function run(to,ms){cancelAnimationFrame(raf);const t0=performance.now(),from=cur;
+<link rel="stylesheet" href="_base.css"><style>.body{padding:0;overflow:hidden}
+.hero{position:relative;height:100%;overflow:hidden}
+.lyr{position:absolute;inset:-70px;will-change:transform}
+.l1{background:radial-gradient(58% 52% at 26% 40%,oklch(46% .16 320/.75),transparent 68%)}
+.l2{background:radial-gradient(52% 46% at 74% 62%,oklch(52% .15 208/.62),transparent 70%)}
+.l3{background:radial-gradient(40% 38% at 52% 24%,oklch(62% .14 62/.4),transparent 72%)}
+.fg{position:relative;z-index:2;padding:34px 26px}
+.fg h2{font-size:29px;letter-spacing:-.03em}
+.fg p{margin-top:8px;max-width:34ch}</style></head><body>
+<div class="app"><div class="bar"><h1>Ember</h1><div class="grow"></div>
+<span class="pill">feature</span></div><div class="body"><div class="hero">
+<div class="lyr l1" id="a"></div><div class="lyr l2" id="b"></div><div class="lyr l3" id="c"></div>
+<div class="fg" id="d"><h2>Ember</h2><p class="dim">Twenty-one takes cut down to nine
+minutes, recorded in a room with the windows open.</p></div>
+</div></div></div>
+<div class="spec">back <b>18%</b> · mid <b>31%</b> of scroll · transforms only · off entirely under reduced-motion</div>
+<script src="_loop.js"></script><script>const a=$("#a"),b=$("#b"),c=$("#c"),d=$("#d");let cur=0,raf;
+function at(p){a.style.transform=`translateY(${-p*40}px)`;
+  b.style.transform=`translateY(${-p*70}px)`;
+  c.style.transform=`translateY(${-p*22}px)`;
+  d.style.transform=`translateY(${-p*118}px)`;d.style.opacity=1-p*0.75;}
+at(0);
+function run(to,ms){cancelAnimationFrame(raf);const t0=performance.now(),from=cur;
   (function s(n){const t=Math.min(1,(n-t0)/ms),e=t<.5?2*t*t:1-Math.pow(-2*t+2,2)/2;
    cur=from+(to-from)*e;at(cur);if(t<1)raf=requestAnimationFrame(s);})(t0);}
-let cur=0;at(0);
-cycle([[400,()=>run(1,1700)],[2500,()=>run(0,1200)]],4200)</script></body></html>
+cycle([[500,()=>run(1,1900)],[2900,()=>run(0,1300)]],4600)</script></body></html>
