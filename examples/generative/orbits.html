@@ -5,6 +5,10 @@
 brightness is orbital speed — fast is hot</div>
 <div class="seed">seed 1129</div>
 <script src="_gen.js"></script><script>
+let _running=true;
+document.addEventListener('visibilitychange',()=>{const v=!document.hidden;
+  if(v&&!_running){_running=true;last=performance.now();requestAnimationFrame(loop);} else _running=v;});
+
 /* Intent: a sky of small bodies falling around three slow masses. Colour is earned by
    speed, which is physically what heat is here: bodies brighten at perihelion and cool
    at apoapsis, so the image reads as orbits rather than as scribble. Softening keeps
@@ -54,6 +58,6 @@ let t=0,last=performance.now();
     ctx.lineWidth=0.75+sp*1.6;
     ctx.beginPath(); ctx.moveTo(px,py); ctx.lineTo(x,y); ctx.stroke();
   }
-  requestAnimationFrame(loop);
+  if(_running) requestAnimationFrame(loop);
 })(performance.now());
 </script></body></html>

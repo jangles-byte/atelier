@@ -5,6 +5,10 @@
 brightness is local flock density</div>
 <div class="seed">seed 3312</div>
 <script src="_gen.js"></script><script>
+let _running=true;
+document.addEventListener('visibilitychange',()=>{const v=!document.hidden;
+  if(v&&!_running){_running=true;last=performance.now();requestAnimationFrame(loop);} else _running=v;});
+
 /* Intent: a flock at dusk. Three local rules, no leader, no path — the shape of the whole
    is an accident of everyone watching their neighbours. Colour is earned by local density,
    so the knots where birds crowd glow and the stragglers go dark. Speed is clamped to a
@@ -60,6 +64,6 @@ let last=performance.now();
     ctx.lineWidth=0.7+q*1.5;
     ctx.beginPath(); ctx.moveTo(px,py); ctx.lineTo(x,y); ctx.stroke();
   }
-  requestAnimationFrame(loop);
+  if(_running) requestAnimationFrame(loop);
 })(performance.now());
 </script></body></html>

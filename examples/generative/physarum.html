@@ -1,0 +1,175 @@
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8">
+<title>Physarum — 1,048,576 agents on the GPU</title><link rel="stylesheet" href="_gen.css"></head><body>
+<canvas id="c"></canvas>
+<div class="cap"><b>Mycelium</b>1,048,576 agents · sensor 9px / 30° · decay 0.955<br>
+brightness is trail concentration</div>
+<div class="seed">webgl2 · agents live in a 1024² float texture</div>
+<script>
+/* Intent: a colony finding food. The CPU version of this piece failed — at 200k agents in
+   JavaScript the network fused into a handful of thick trunks instead of branching. The
+   fix was not a parameter, it was the architecture: physarum needs agent counts that only
+   a GPU reaches, so agent state lives in a floating-point texture and every stage is a
+   shader. Four passes per frame: move, deposit, diffuse, present. */
+const cv=document.getElementById('c');
+const gl=cv.getContext('webgl2',{antialias:false,alpha:false});
+if(!gl){document.body.innerHTML='<p style="color:#caa;font:14px system-ui;padding:2rem">WebGL2 required.</p>';throw 0;}
+if(!gl.getExtension('EXT_color_buffer_float')) throw new Error('float render targets unavailable');
+gl.getExtension('OES_texture_float_linear');
+gl.getExtension('EXT_float_blend');       // required to blend into 32F; R16F below is the safe path
+
+const AGENT_TEX = 1024;                 // 1024² = 1,048,576 agents
+const N = AGENT_TEX*AGENT_TEX;
+let W,H;
+
+const VS_QUAD=`#version 300 es
+void main(){ vec2 p=vec2((gl_VertexID<<1)&2, gl_VertexID&2);
+  gl_Position=vec4(p*2.0-1.0,0,1); }`;
+
+const FS_MOVE=`#version 300 es
+precision highp float;
+uniform sampler2D uAgents, uTrail;
+uniform vec2 uRes; uniform float uTime, uDt;
+out vec4 o;
+float hash(vec2 p){ return fract(sin(dot(p,vec2(127.1,311.7)))*43758.5453); }
+float sense(vec2 p, float a, float dist){
+  vec2 s = p + vec2(cos(a),sin(a))*dist;
+  return texture(uTrail, fract(s/uRes)).r;
+}
+void main(){
+  ivec2 id=ivec2(gl_FragCoord.xy);
+  vec4 A=texelFetch(uAgents,id,0);
+  vec2 p=A.xy; float ang=A.z;
+  const float SD=9.0, SA=0.5236, TURN=0.6981, SPEED=58.0;   // 30°, 40°
+  float f =sense(p,ang,SD), fl=sense(p,ang-SA,SD), fr=sense(p,ang+SA,SD);
+  float rnd=hash(p+uTime);
+  if(f>fl && f>fr){}
+  else if(fl>fr) ang -= TURN*rnd*uDt*60.0;
+  else if(fr>fl) ang += TURN*rnd*uDt*60.0;
+  else ang += (rnd-0.5)*2.0*TURN*uDt*60.0;
+  p += vec2(cos(ang),sin(ang))*SPEED*uDt;
+  p = mod(p+uRes, uRes);                       // wrap; a wall reads as a container
+  o=vec4(p,ang,1.0);
+}`;
+
+const VS_DEPOSIT=`#version 300 es
+uniform sampler2D uAgents; uniform vec2 uRes; uniform int uSide;
+void main(){
+  ivec2 id=ivec2(gl_VertexID%uSide, gl_VertexID/uSide);
+  vec2 p=texelFetch(uAgents,id,0).xy;
+  gl_Position=vec4(p/uRes*2.0-1.0,0,1);
+  gl_PointSize=1.0;
+}`;
+const FS_DEPOSIT=`#version 300 es
+precision highp float; out vec4 o;
+void main(){ o=vec4(0.42,0,0,1); }`;        // additive; deposit per agent per frame
+
+const FS_DIFFUSE=`#version 300 es
+precision highp float;
+uniform sampler2D uTrail; uniform vec2 uRes; out vec4 o;
+void main(){
+  vec2 t=1.0/uRes; float s=0.0;
+  for(int y=-1;y<=1;y++) for(int x=-1;x<=1;x++)
+    s += texture(uTrail, fract(gl_FragCoord.xy*t + vec2(x,y)*t)).r;
+  o = vec4(s/9.0*0.955, 0.0, 0.0, 1.0);      // full mean blur IS the connectivity
+}`;
+
+const FS_PRESENT=`#version 300 es
+precision highp float;
+uniform sampler2D uTrail; uniform vec2 uRes; out vec4 o;
+vec3 oklch(float L,float C,float H){
+  float a=C*cos(H), b=C*sin(H);
+  float l=pow(L+0.3963377774*a+0.2158037573*b,3.0);
+  float m=pow(L-0.1055613458*a-0.0638541728*b,3.0);
+  float s=pow(L-0.0894841775*a-1.2914855480*b,3.0);
+  vec3 c=vec3( 4.0767416621*l-3.3077115913*m+0.2309699292*s,
+              -1.2684380046*l+2.6097574011*m-0.3413193965*s,
+              -0.0041960863*l-0.7034186147*m+1.7076147010*s);
+  c=max(c,0.0);
+  return mix(12.92*c, 1.055*pow(c,vec3(1.0/2.4))-0.055, step(0.0031308,c));
+}
+void main(){
+  float t=texture(uTrail, gl_FragCoord.xy/uRes).r;
+  float v=clamp((log(1.0+t)-2.95)*0.285, 0.0, 1.0);
+  // colour is earned by concentration alone: violet in the quiet field, gold on the routes
+  float L=0.06+v*0.90, C=0.02+v*0.13*(1.0-v*0.55), H=radians(300.0-v*230.0);
+  o=vec4(oklch(L,C,H),1.0);
+}`;
+
+function sh(type,src){const s=gl.createShader(type);gl.shaderSource(s,src);gl.compileShader(s);
+  if(!gl.getShaderParameter(s,gl.COMPILE_STATUS)) throw new Error(gl.getShaderInfoLog(s));return s;}
+function prog(vs,fs){const p=gl.createProgram();
+  gl.attachShader(p,sh(gl.VERTEX_SHADER,vs)); gl.attachShader(p,sh(gl.FRAGMENT_SHADER,fs));
+  gl.linkProgram(p);
+  if(!gl.getProgramParameter(p,gl.LINK_STATUS)) throw new Error(gl.getProgramInfoLog(p));return p;}
+
+const pMove=prog(VS_QUAD,FS_MOVE), pDep=prog(VS_DEPOSIT,FS_DEPOSIT),
+      pDif=prog(VS_QUAD,FS_DIFFUSE), pPre=prog(VS_QUAD,FS_PRESENT);
+const vao=gl.createVertexArray(); gl.bindVertexArray(vao);
+
+function tex(w,h,data,fmt=gl.RGBA32F,src=gl.RGBA,type=gl.FLOAT){
+  const t=gl.createTexture(); gl.bindTexture(gl.TEXTURE_2D,t);
+  gl.texImage2D(gl.TEXTURE_2D,0,fmt,w,h,0,src,type,data||null);
+  gl.texParameteri(gl.TEXTURE_2D,gl.TEXTURE_MIN_FILTER,gl.LINEAR);
+  gl.texParameteri(gl.TEXTURE_2D,gl.TEXTURE_MAG_FILTER,gl.LINEAR);
+  gl.texParameteri(gl.TEXTURE_2D,gl.TEXTURE_WRAP_S,gl.REPEAT);
+  gl.texParameteri(gl.TEXTURE_2D,gl.TEXTURE_WRAP_T,gl.REPEAT);
+  return t;
+}
+const fbo=gl.createFramebuffer();
+const bind=(t)=>{gl.bindFramebuffer(gl.FRAMEBUFFER,fbo);
+  gl.framebufferTexture2D(gl.FRAMEBUFFER,gl.COLOR_ATTACHMENT0,gl.TEXTURE_2D,t,0);};
+
+let agentA,agentB,trailA,trailB;
+function init(){
+  W=cv.width=innerWidth; H=cv.height=innerHeight;
+  const a=new Float32Array(N*4);
+  for(let i=0;i<N;i++){                       // seed in a disc, random headings
+    const ang=Math.random()*6.283, r=Math.sqrt(Math.random())*0.42*Math.min(W,H);
+    a[i*4]=W/2+Math.cos(ang)*r; a[i*4+1]=H/2+Math.sin(ang)*r;
+    a[i*4+2]=Math.random()*6.283; a[i*4+3]=1;
+  }
+  agentA=tex(AGENT_TEX,AGENT_TEX,a); agentB=tex(AGENT_TEX,AGENT_TEX,null);
+  trailA=tex(W,H,null,gl.R16F,gl.RED,gl.HALF_FLOAT); trailB=tex(W,H,null,gl.R16F,gl.RED,gl.HALF_FLOAT);
+  for(const t of [trailA,trailB]){ bind(t); gl.clearColor(0,0,0,1); gl.clear(gl.COLOR_BUFFER_BIT); }
+}
+addEventListener('resize',init); init();
+
+const u=(p,n)=>gl.getUniformLocation(p,n);
+let last=performance.now(), time=0;
+function frame(now){
+  const dt=Math.min((now-last)/1000,1/30); last=now; time+=dt;
+
+  // 1. move
+  gl.useProgram(pMove); bind(agentB); gl.viewport(0,0,AGENT_TEX,AGENT_TEX);
+  gl.activeTexture(gl.TEXTURE0); gl.bindTexture(gl.TEXTURE_2D,agentA); gl.uniform1i(u(pMove,'uAgents'),0);
+  gl.activeTexture(gl.TEXTURE1); gl.bindTexture(gl.TEXTURE_2D,trailA); gl.uniform1i(u(pMove,'uTrail'),1);
+  gl.uniform2f(u(pMove,'uRes'),W,H); gl.uniform1f(u(pMove,'uTime'),time); gl.uniform1f(u(pMove,'uDt'),dt);
+  gl.drawArrays(gl.TRIANGLES,0,3);
+  [agentA,agentB]=[agentB,agentA];
+
+  // 2. deposit — one point per agent, additively blended into the trail map
+  gl.useProgram(pDep); bind(trailA); gl.viewport(0,0,W,H);
+  gl.enable(gl.BLEND); gl.blendFunc(gl.ONE,gl.ONE);
+  gl.activeTexture(gl.TEXTURE0); gl.bindTexture(gl.TEXTURE_2D,agentA); gl.uniform1i(u(pDep,'uAgents'),0);
+  gl.uniform2f(u(pDep,'uRes'),W,H); gl.uniform1i(u(pDep,'uSide'),AGENT_TEX);
+  gl.drawArrays(gl.POINTS,0,N);
+  gl.disable(gl.BLEND);
+
+  // 3. diffuse + decay
+  gl.useProgram(pDif); bind(trailB); gl.viewport(0,0,W,H);
+  gl.activeTexture(gl.TEXTURE0); gl.bindTexture(gl.TEXTURE_2D,trailA); gl.uniform1i(u(pDif,'uTrail'),0);
+  gl.uniform2f(u(pDif,'uRes'),W,H);
+  gl.drawArrays(gl.TRIANGLES,0,3);
+  [trailA,trailB]=[trailB,trailA];
+
+  // 4. present
+  gl.bindFramebuffer(gl.FRAMEBUFFER,null); gl.viewport(0,0,W,H);
+  gl.useProgram(pPre);
+  gl.activeTexture(gl.TEXTURE0); gl.bindTexture(gl.TEXTURE_2D,trailA); gl.uniform1i(u(pPre,'uTrail'),0);
+  gl.uniform2f(u(pPre,'uRes'),W,H);
+  gl.drawArrays(gl.TRIANGLES,0,3);
+
+  if(_running) requestAnimationFrame(frame);
+}
+if(_running) requestAnimationFrame(frame);
+</script></body></html>

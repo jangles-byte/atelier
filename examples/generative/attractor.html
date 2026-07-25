@@ -5,6 +5,10 @@
 brightness is visit density, log-scaled</div>
 <div class="seed">clifford · a,b,c,d ± 0.2</div>
 <script src="_gen.js"></script><script>
+let _running=true;
+document.addEventListener('visibilitychange',()=>{const v=!document.hidden;
+  if(v&&!_running){_running=true;last=performance.now();requestAnimationFrame(loop);} else _running=v;});
+
 /* Intent: deterministic chaos as filigree. One point, iterated: x' = sin(a·y) + c·cos(a·x).
    No physics and no randomness — the lace is where the orbit chooses to spend its time.
    Brightness is visit density on a log scale, so the faint structure survives next to
@@ -51,6 +55,6 @@ let t=0,last=performance.now();
   }
   octx.putImageData(img,0,0);
   ctx.drawImage(off,0,0);
-  requestAnimationFrame(loop);
+  if(_running) requestAnimationFrame(loop);
 })(performance.now());
 </script></body></html>

@@ -17,6 +17,20 @@ not a decoration on it.
 
 ![ember](https://github.com/jangles-byte/atelier/releases/download/media/gen-ember.gif) · [source](ember.html)
 
+## Mycelium — physarum, 1,048,576 agents
+
+A colony finding food. Agents lay trail, sense it ahead, and steer toward what they smell;
+the feedback builds transport networks. Nothing here is drawn — the structure is a
+consequence of a million agents agreeing.
+
+**This piece is why the skill covers GPU work.** The CPU version failed: at 200,000 agents
+in JavaScript the network fused into a handful of thick trunks no matter how the occupancy,
+sensor distance, diffusion or step size were tuned. The fix wasn't a parameter, it was the
+architecture — agent state lives in a 1024² float texture and every stage is a shader, four
+passes per frame: move, deposit, diffuse, present.
+
+![mycelium](https://github.com/jangles-byte/atelier/releases/download/media/physarum.gif) · [source](physarum.html)
+
 ## Strata — domain-warped noise
 
 Ink held in glass. Noise fed into the coordinates of more noise, twice — the trick that
@@ -61,13 +75,5 @@ birds do not hover.
 
 ## What isn't here
 
-**Physarum.** I built it and could not get it to form a real network at CPU scale — it
-kept fusing into a handful of thick trunks instead of branching lace, across ten rounds of
-tuning occupancy, sensor distance, diffusion and step size. The technique is documented in
-[`systems.md`](../../skills/generative-motion/references/systems.md) with the parameter
-ranges that matter, but it genuinely wants a GPU and hundreds of thousands of agents, and
-shipping a weak version of the most striking system in the file would have been worse than
-shipping none.
-
-Also documented but not yet built: reaction–diffusion, differential growth, metaballs,
+Documented in the skill but not yet built here: reaction–diffusion, differential growth, metaballs,
 interference/moiré, and cyclic cellular automata.

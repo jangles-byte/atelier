@@ -5,6 +5,10 @@
 brightness is warp magnitude</div>
 <div class="seed">seed 4210</div>
 <script src="_gen.js"></script><script>
+let _running=true;
+document.addEventListener('visibilitychange',()=>{const v=!document.hidden;
+  if(v&&!_running){_running=true;last=performance.now();requestAnimationFrame(loop);} else _running=v;});
+
 /* Intent: ink held in glass. Noise fed into the coordinates of more noise — the trick
    that turns clouds into marble. Only the innermost layer evolves, so the structure
    breathes rather than slides. Rendered at a third scale and upsampled: the field has no
@@ -38,6 +42,6 @@ let t=0,last=performance.now();
   }
   octx.putImageData(img,0,0);
   ctx.imageSmoothingEnabled=true; ctx.drawImage(off,0,0,GW,GH,0,0,W,H);
-  requestAnimationFrame(loop);
+  if(_running) requestAnimationFrame(loop);
 })(performance.now());
 </script></body></html>

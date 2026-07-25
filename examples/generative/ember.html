@@ -94,8 +94,8 @@ function frame(now){
     ctx.lineWidth = (0.6 + speed*1.7)*DPR;
     ctx.beginPath(); ctx.moveTo(P[o+2],P[o+3]); ctx.lineTo(x,y); ctx.stroke();
   }
-  requestAnimationFrame(frame);
+  if(_running) requestAnimationFrame(frame);
 }
-requestAnimationFrame(frame);
+if(_running) requestAnimationFrame(frame);
 </script>
 </body></html>
