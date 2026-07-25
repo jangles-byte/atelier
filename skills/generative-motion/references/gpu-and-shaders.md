@@ -161,17 +161,33 @@ fragment invocations per frame before any agents — that is the floor. Then:
 Halve the resolution of anything that isn't the final image. Simulation grids, glow
 buffers, and blur chains all survive it invisibly.
 
-## Always pause when hidden
+## Lifecycle: the piece must know when to stop
 
-An unattended generative sketch will pin a GPU indefinitely and drain a laptop. Every piece
-needs this, and it is the single most common omission (including in this package's own
-first six sketches):
+An unattended generative sketch will pin a GPU indefinitely and drain a laptop. Browsers
+throttle background `requestAnimationFrame` but do not reliably stop it, so handle it
+yourself. This is the single most commonly omitted code in generative work — including in
+this package's own first six sketches.
 
 ```js
+let running = true;
+const stop = () => { running = false; cancelAnimationFrame(raf); };
+
 document.addEventListener('visibilitychange', () => {
-  running = !document.hidden;
-  if (running) { last = performance.now(); requestAnimationFrame(frame); }
+  if (document.hidden) return stop();
+  running = true; last = performance.now();     // reset, or you integrate a minutes-long dt
+  raf = requestAnimationFrame(frame);
 });
+addEventListener('pagehide', stop);              // bfcache / navigation away
 ```
-Gate the `requestAnimationFrame` call on `running`, and reset your `last` timestamp on
-resume or the first frame after waking integrates a multi-minute `dt`.
+
+Gate the `requestAnimationFrame` call on `running`. Three more that separate a sketch from
+something you can leave open:
+
+- **`webglcontextlost`** — `preventDefault()` it and halt; otherwise the page silently
+  renders nothing forever after a GPU reset or a laptop waking from sleep. Reallocate on
+  `webglcontextrestored`, or reload.
+- **`prefers-reduced-motion`** — for a piece that *builds* toward a state, the honest
+  reduced variant is to run it to completion and then freeze as a still image, rather than
+  showing nothing. The composition survives; the motion doesn't.
+- **A settle condition** — if the system converges, detect it and stop the loop. A finished
+  physarum network re-rendering an unchanging frame at 60fps is pure waste.

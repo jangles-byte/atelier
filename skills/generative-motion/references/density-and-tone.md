@@ -43,16 +43,32 @@ peak ≈ 300–800. That gets you within one iteration.
 some multiplier, you know the magnitude. This also tells you instantly whether a black
 frame is a tone problem or a simulation problem — a distinction worth thirty seconds.
 
-**Normalise adaptively.** Track a running maximum with a slow follow so it can't be spiked
-by one hot pixel, and divide by it:
+**Normalise the source, not the curve — the better fix.** Rather than adapting the tone
+mapping to whatever the field happens to be, pin the field itself. Choose the deposit so
+the steady-state *mean* is exactly 1.0 whatever the resolution or population:
+
+```js
+const density = agentCount / (gridW * gridH);      // agents per cell
+const deposit = (1 - decay) * 1.0 / density;       // steady-state mean -> 1.0
+```
+
+Now one fixed exposure constant is correct on every display, no per-resolution tuning and
+no per-frame readback. This is strictly better than adapting after the fact and it is the
+first thing to reach for in any deposit/decay system.
+
+**Adaptive normalisation** is the fallback for fields whose magnitude you cannot predict —
+visit counts, unbounded accumulation. Track a running maximum with a slow follow so a
+single hot pixel can't spike it:
 
 ```js
 peak += (frameMax - peak) * 0.02;         // seconds-scale adaptation
 ```
-This is what makes a piece robust across resolutions and populations — the composition
-survives when someone opens it on a 4K display, where per-pixel density is a quarter of
-what you tuned at. **Any piece whose tone constants were tuned at one resolution will look
-wrong at another** unless it normalises or scales deposit by pixel area.
+It costs a readback, so compute it once every N frames rather than every frame.
+
+Either way: **any piece whose tone constants were tuned at one resolution will look wrong
+at another** unless the deposit is normalised or the curve adapts. This is the most common
+reason a sketch that looked right in development looks washed out or empty on someone
+else's screen.
 
 ## Choosing the curve, not just its range
 
