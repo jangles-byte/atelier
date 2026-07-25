@@ -22,14 +22,22 @@ A tutorial renders the algorithm. A piece renders a decision.
 3. **Build the field and the motion** with
    [references/noise-and-fields.md](references/noise-and-fields.md) — noise, fbm, domain
    warping, curl. Most beautiful motion is a field being sampled.
-4. **Render it well** with [references/rendering.md](references/rendering.md) — trails via
-   accumulation, additive blending, envelopes so nothing pops, and the resolution and
-   buffer choices that keep it fast.
-5. **Art-direct it** against [references/art-direction.md](references/art-direction.md) —
+4. **Decide CPU or GPU early** with [references/gpu-and-shaders.md](references/gpu-and-shaders.md).
+   This is architectural, not an optimisation — some systems simply do not express
+   themselves below a population the CPU cannot reach, and porting later means rewriting.
+5. **Render it well** with [references/rendering.md](references/rendering.md) — trails via
+   accumulation, additive blending, envelopes so nothing pops.
+6. **Map the field to the screen** with [references/density-and-tone.md](references/density-and-tone.md).
+   Accumulation buffers are unbounded and displays are not; this mapping is where
+   technically-correct pieces most often look wrong.
+7. **Finish it** with [references/post-processing.md](references/post-processing.md) — bloom,
+   grain, vignette, grading. The cheapest quality per line of code in the discipline.
+8. **Art-direct it** against [references/art-direction.md](references/art-direction.md) —
    the checklist that separates a piece from a screensaver.
-6. **Watch it.** Record with `../motion/scripts/capture-motion.py` and look at the result
+9. **Watch it.** Record with `../motion/scripts/capture-motion.py` and look at the result
    over a long run, not one frame. Generative work fails slowly: it looks great at 4
-   seconds and turns to grey mush at 60.
+   seconds and turns to grey mush at 60. When something is wrong, work
+   [references/diagnostic.md](references/diagnostic.md) rather than tuning at random.
 
 ## Which reference to load
 
@@ -37,8 +45,12 @@ A tutorial renders the algorithm. A piece renders a decision.
 |---|---|
 | Choosing a system; attractors, boids, physarum, reaction-diffusion, differential growth | `references/systems.md` |
 | Noise, fbm, domain warping, curl fields, flow fields | `references/noise-and-fields.md` |
-| Trails, blending, buffers, colour mapping, performance at scale | `references/rendering.md` |
+| Trails, blending, buffers, performance at scale | `references/rendering.md` |
+| Going GPU: WebGL2 GPGPU, ping-pong, the float-extension minefield, shader systems | `references/gpu-and-shaders.md` |
+| Flat white, thin outlines, or any density-to-colour mapping | `references/density-and-tone.md` |
+| Bloom, grain, vignette, aberration, feedback, colour grading | `references/post-processing.md` |
 | It runs but looks like a tutorial | `references/art-direction.md` |
+| It's black / saturating / dying / clumping / 4fps / grey mush | `references/diagnostic.md` |
 
 ## Non-negotiables
 

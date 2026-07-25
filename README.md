@@ -111,12 +111,18 @@ variant, and the failure mode that ruins it — **and a demo you can watch**.
 | **typography-and-layout** | Type pairing, modular scale, the spacing ladder, grids and when to break them. |
 
 The **generative-motion** skill sits alongside `motion` as a second front door: use `motion`
-when the animation serves an interface, `generative-motion` when the animation *is* the
-work. Its references cover noise and fbm, domain warping, curl fields, trails and
-accumulation buffers, colour mapping, and nine systems worth building — physarum, strange
-attractors, boids, reaction–diffusion, differential growth, n-body, metaballs, interference
-and cellular automata — each with the ranges that look good and the failure mode that
-ruins it.
+when the animation serves an interface, `generative-motion` when the animation *is* the work.
+
+| Reference | What's in it |
+|---|---|
+| **systems.md** | Nine systems with the parameter ranges that actually look good and each failure mode: physarum, strange attractors, boids, reaction–diffusion, differential growth, n-body, metaballs, interference, cellular automata |
+| **noise-and-fields.md** | Which noise and why, fbm, domain warping, curl vs angle fields, and turning a field into a composition rather than wallpaper |
+| **gpu-and-shaders.md** | When to go GPU (architectural, not an optimisation), WebGL2 GPGPU with ping-pong state textures, attribute-less drawing, the float-extension minefield, and debugging in the order that finds it fastest |
+| **density-and-tone.md** | Mapping an unbounded accumulation buffer onto a display. The most common way a correct piece looks wrong — flat white or thin outlines — and how to find the floor without guessing |
+| **post-processing.md** | Bloom as a mip chain, film grain weighted to the midtones, chromatic aberration, feedback, gradient-map grading, and the order these must run in |
+| **rendering.md** | Accumulation trails, blending modes, envelopes, batching and scale |
+| **art-direction.md** | The eight tells of tutorial work, the five decisions that make it a piece, and the tuning order |
+| **diagnostic.md** | Black frame, saturating, dying, exploding, clumping, 4fps, or beautiful-then-grey-mush — worked by symptom |
 
 ## Install
 
