@@ -1,0 +1,4 @@
+
+# gallery GIFs live on the "media" release, not in the repo — see examples/*/README.md
+examples/**/*.gif
+examples/*.gif

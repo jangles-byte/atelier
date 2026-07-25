@@ -8,7 +8,7 @@ idea any of it feels dead. Atelier fixes both halves: a motion skill with tuned 
 recipes, and a capture script that records the running result to a GIF so the work gets
 judged by watching it.
 
-![Editorial hero: a didone headline rising behind a mask over a burning ember field](examples/hero.gif)
+![Editorial hero: a didone headline rising behind a mask over a burning ember field](https://github.com/jangles-byte/atelier/releases/download/media/hero.gif)
 
 Every frame above came out of these skills — the flow field, the masked line-by-line
 reveal, the type, the palette — and was recorded with the capture script.
@@ -23,19 +23,19 @@ Source: [`hero.html`](examples/hero.html).
 FLIP, a 560ms flight, detail copy arriving 60ms apart, and the whole gesture reversing on
 close. [`expand.html`](examples/expand.html)
 
-![A cover flying from a grid into an expanded detail view](examples/expand.gif)
+![A cover flying from a grid into an expanded detail view](https://github.com/jangles-byte/atelier/releases/download/media/expand.gif)
 
 **A chart that draws itself.** One electric mint that belongs exclusively to the series, so
 colour reads as data; tabular figures so the counter doesn't reflow; a live head on the
 trace that retires when it lands. [`signal.html`](examples/signal.html)
 
-![An analytics chart drawing its trace with a live head and counting figure](examples/signal.gif)
+![An analytics chart drawing its trace with a live head and counting figure](https://github.com/jangles-byte/atelier/releases/download/media/signal.gif)
 
 **Generative motion.** A two-octave noise field where colour is *earned* rather than
 applied — deep oxblood where the flow is calm, gold only where it runs fastest, so
 brightness encodes velocity. [`ember.html`](examples/ember.html)
 
-![Ember: a noise flow field with velocity-mapped colour](examples/ember.gif)
+![Ember: a noise flow field with velocity-mapped colour](https://github.com/jangles-byte/atelier/releases/download/media/ember.gif)
 
 ---
 
@@ -51,9 +51,9 @@ from a screensaver.
 
 | | |
 |---|---|
-| ![clifford](examples/generative/attractor.gif) | ![murmuration](examples/generative/boids.gif) |
+| ![clifford](https://github.com/jangles-byte/atelier/releases/download/media/gen-attractor.gif) | ![murmuration](https://github.com/jangles-byte/atelier/releases/download/media/gen-boids.gif) |
 | **Clifford** — deterministic chaos. One point iterated 420,000×/frame; brightness is visit density. | **Murmuration** — three local rules, no leader; brightness is local flock density. |
-| ![strata](examples/generative/warp.gif) | ![perihelion](examples/generative/orbits.gif) |
+| ![strata](https://github.com/jangles-byte/atelier/releases/download/media/gen-warp.gif) | ![perihelion](https://github.com/jangles-byte/atelier/releases/download/media/gen-orbits.gif) |
 | **Strata** — noise fed into the coordinates of noise, twice. Only the inner layer evolves, so it breathes rather than slides. | **Perihelion** — bodies falling around three slow masses; they brighten at perihelion and cool at apoapsis. |
 
 The rule every piece follows: **colour is earned.** It maps to a property the system

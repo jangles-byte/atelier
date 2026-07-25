@@ -15,7 +15,7 @@ Embers on a thermal. A two-octave noise field sampled as an angle; colour is ear
 velocity, so deep oxblood is calm and gold is fast. Brightness is a reading of the field,
 not a decoration on it.
 
-![ember](ember.gif) · [source](ember.html)
+![ember](https://github.com/jangles-byte/atelier/releases/download/media/gen-ember.gif) · [source](ember.html)
 
 ## Strata — domain-warped noise
 
@@ -24,7 +24,7 @@ turns clouds into marble. Only the innermost layer evolves, so the structure bre
 instead of sliding. Rendered at a third scale and upsampled, which costs nothing because
 the field has no high-frequency detail to lose.
 
-![strata](warp.gif) · [source](warp.html)
+![strata](https://github.com/jangles-byte/atelier/releases/download/media/gen-warp.gif) · [source](warp.html)
 
 ## Clifford — deterministic chaos
 
@@ -37,7 +37,7 @@ The parameters **orbit** a known-chaotic seed rather than interpolating between 
 them — a straight lerp between two chaotic sets passes through non-chaotic parameter space
 where the whole attractor collapses to a single point.
 
-![clifford](attractor.gif) · [source](attractor.html)
+![clifford](https://github.com/jangles-byte/atelier/releases/download/media/gen-attractor.gif) · [source](attractor.html)
 
 ## Perihelion — n-body with trails
 
@@ -46,7 +46,7 @@ here is what heat physically is: bodies brighten at perihelion and cool at apoap
 image reads as orbits rather than scribble. Softening in the force law is mandatory —
 without it, close passes slingshot to infinity and the piece empties itself.
 
-![perihelion](orbits.gif) · [source](orbits.html)
+![perihelion](https://github.com/jangles-byte/atelier/releases/download/media/gen-orbits.gif) · [source](orbits.html)
 
 ## Murmuration — boids
 
@@ -55,7 +55,7 @@ accident of everyone watching their neighbours. Colour is earned by local densit
 glow and stragglers go dark. Speed is clamped to a *band* rather than a maximum, because
 birds do not hover.
 
-![murmuration](boids.gif) · [source](boids.html)
+![murmuration](https://github.com/jangles-byte/atelier/releases/download/media/gen-boids.gif) · [source](boids.html)
 
 ---
 
