@@ -1,8 +1,8 @@
 {
   "name": "atelier",
   "displayName": "Atelier",
-  "version": "0.2.0",
-  "description": "Animation skills for Claude Code \u2014 production motion recipes (modals, drawers, toasts, FLIP lists, view transitions, particles, screen shake, springs), easing and spring math for any language, a dead-motion diagnostic, and a capture script that records the running animation to a GIF so Claude can watch what it built.",
+  "version": "0.7.0",
+  "description": "Generative animation for Claude Code \u2014 flow fields, physarum, strange attractors, boids, reaction-diffusion, domain warping; GPU/WebGL2 GPGPU and raymarched SDFs; density-to-tone mapping, post-processing and art direction. Parameters are machine-verified, and a bundled capture script records the running result so the work gets judged by watching it. Also includes interface-motion recipes.",
   "author": {
     "name": "Atelier contributors",
     "url": "https://github.com/jangles-byte/atelier"
@@ -11,15 +11,16 @@
   "repository": "https://github.com/jangles-byte/atelier",
   "license": "MIT",
   "keywords": [
+    "generative",
+    "generative-art",
+    "creative-coding",
     "animation",
-    "motion",
-    "ui",
-    "transitions",
-    "easing",
-    "springs",
+    "shaders",
+    "webgl",
+    "glsl",
+    "flow-field",
     "particles",
-    "game-feel",
-    "design",
-    "skills"
+    "motion",
+    "design"
   ]
 }

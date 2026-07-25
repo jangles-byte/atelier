@@ -4,6 +4,14 @@ Each entry: what it *is*, the maths, parameter ranges that actually look good (t
 tutorials omit), what to map colour to, and the failure mode. All are engine-agnostic —
 they need a loop, an array, and somewhere to draw.
 
+**The numeric claims here are checked, not remembered.** `validate/attractors.py` measures
+every attractor seed for chaos (Lyapunov exponent) and structure (grid occupancy);
+`validate/gray_scott.py` runs every reaction–diffusion pair and classifies the result.
+Both are CPU-only and take seconds. Run them after editing any number in this file — a
+wrong parameter here costs a reader a render and their confidence, and in both these
+systems a value slightly outside the viable band produces *nothing at all* rather than
+something worse.
+
 ## Contents
 [Physarum](#physarum-slime-mould) · [Strange attractors](#strange-attractors) ·
 [Boids](#boids-flocking) · [Reaction-diffusion](#reaction-diffusion) ·
@@ -59,13 +67,19 @@ Try (1.641, 1.902, 0.316, 1.525) or (−2.0, −2.0, −1.2, 2.0).
 **Lorenz (3D):** `dx = σ(y−x)`, `dy = x(ρ−z) − y`, `dz = xy − βz`, with σ=10, ρ=28,
 β=8/3, `dt` = 0.005–0.01. Project to 2D and rotate slowly.
 
-Animate by **interpolating parameters** (a, b, c, d) between two good seeds over 20–40s
-— the structure morphs continuously and it is mesmerising. Plot with very low alpha
-(0.02–0.06) and let density accumulate.
+Animate by **orbiting one seed**, not by travelling between two (see the measurement
+below). Plot with very low alpha (0.02–0.06) and let density accumulate — the filigree is
+built from millions of overlapping faint points, not from bright ones.
 
 **Colour:** step index (age along the orbit), or local velocity `|p' − p|`.
-**Failure mode:** most parameter sets are visually dead. Search: iterate 2,000 points, keep
-sets whose bounding box is well-filled and whose Lyapunov estimate is positive.
+**Failure mode:** most parameter sets are visually dead. `validate/attractors.py --search
+clifford 10` hunts for viable ones and reports how many candidates it rejected on the way.
+
+**Do not interpolate between two good seeds.** Measured on the first two Clifford sets
+above, **8 of 13 steps along the straight line between them are non-chaotic** — the orbit
+collapses to a fixed point or a short cycle, and the render goes empty mid-animation. To
+animate, *orbit* one seed instead: `a + 0.2·sin(t·0.117)` per parameter keeps you inside
+the viable region. Check any path you do want with `--path`.
 
 ---
 
@@ -102,9 +116,19 @@ B' = B + (Db·∇²B + A·B² − (k+f)·B)·dt
 Da = 1.0, Db = 0.5, dt = 1.0, ∇² via a 3×3 laplacian (0.05 corners, 0.2 edges, −1 centre)
 ```
 
-**The whole piece is (f, k):** mitosis (0.0367, 0.0649) · coral (0.0545, 0.062) ·
-spots (0.030, 0.062) · worms (0.078, 0.061) · waves (0.014, 0.047). Seed with a few
-random blobs of B in a field of A=1.
+**The whole piece is (f, k)** — all five verified to produce structure at 180², 9,000 steps:
+
+| name | f | k | features formed |
+|---|---|---|---|
+| mitosis | 0.0367 | 0.0649 | 131 |
+| coral | 0.0545 | 0.0620 | 495 (densest) |
+| spots | 0.0300 | 0.0620 | 141 |
+| worms | 0.0780 | 0.0610 | 56 (sparsest — needs longer to fill) |
+| waves | 0.0140 | 0.0470 | 184 |
+
+Seed with a few random blobs of B in a field of A=1, plus a little noise for symmetry
+breaking — a perfectly symmetric seed grows a perfectly symmetric and rather dull result.
+`validate/gray_scott.py --scan` maps the viable band if you want pairs of your own.
 
 **Colour:** B concentration, ramped. **Failure mode:** running it at screen resolution on
 CPU (it's a per-pixel loop — use a small grid, 200–400², and upscale, or do it in a

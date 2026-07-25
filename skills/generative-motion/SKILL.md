@@ -19,6 +19,9 @@ A tutorial renders the algorithm. A piece renders a decision.
    The `design-direction` skill's philosophy format applies directly.
 2. **Pick the system** from [references/systems.md](references/systems.md) — each entry
    has the equations, the parameter ranges that actually look good, and its failure mode.
+   Its numbers are machine-checked: `validate/attractors.py` and `validate/gray_scott.py`
+   verify every attractor seed and reaction–diffusion pair on CPU in seconds. Run them
+   after changing any value, and use them to find your own.
 3. **Build the field and the motion** with
    [references/noise-and-fields.md](references/noise-and-fields.md) — noise, fbm, domain
    warping, curl. Most beautiful motion is a field being sampled.
@@ -47,6 +50,7 @@ A tutorial renders the algorithm. A piece renders a decision.
 | Noise, fbm, domain warping, curl fields, flow fields | `references/noise-and-fields.md` |
 | Trails, blending, buffers, performance at scale | `references/rendering.md` |
 | Going GPU: WebGL2 GPGPU, ping-pong, the float-extension minefield, shader systems | `references/gpu-and-shaders.md` |
+| 3D: raymarched SDFs, smooth blending, domain repetition, instancing, camera | `references/three-dimensional.md` |
 | Flat white, thin outlines, or any density-to-colour mapping | `references/density-and-tone.md` |
 | Bloom, grain, vignette, aberration, feedback, colour grading | `references/post-processing.md` |
 | It runs but looks like a tutorial | `references/art-direction.md` |
@@ -64,5 +68,8 @@ A tutorial renders the algorithm. A piece renders a decision.
   usually reads as "busy" on the wall. Halve it, then halve it again.
 - **Density needs negative space.** A frame at uniform particle density is noise. Vary it,
   or crop into it.
+- **Verify parameters before quoting them.** In attractors and reaction–diffusion alike, a
+  value just outside the viable band produces *nothing* rather than something worse, so a
+  plausible-looking number is not a usable one.
 - **Long-run test.** Run it for a minute before shipping — trails saturate, particles
   clump in attractor basins, and energy either dies or explodes.

@@ -1,132 +1,94 @@
 # Atelier
 
-**Animation skills for Claude Code — and the ability to watch what it built.**
+**A generative animation toolkit for Claude Code — with the parameters actually verified,
+and the ability to watch what it built.**
 
-Claude can write an animation. What it can't normally do is *see* one, so it ships
-`transition: all 300ms linear`, one duration for everything, no exits, no stagger, and no
-idea any of it feels dead. Atelier fixes both halves: a motion skill with tuned production
-recipes, and a capture script that records the running result to a GIF so the work gets
+Claude can write a flow field. What it can't normally do is *see* one, know that physarum
+fuses into trunks outside a narrow occupancy band, or know that the attractor seed it just
+picked collapses to a single point. Atelier supplies the knowledge that isn't in the
+tutorials, machine-checks the numbers it quotes, and ships a capture script so the work gets
 judged by watching it.
 
 ![Editorial hero: a didone headline rising behind a mask over a burning ember field](https://github.com/jangles-byte/atelier/releases/download/media/hero.gif)
 
-Every frame above came out of these skills — the flow field, the masked line-by-line
-reveal, the type, the palette — and was recorded with the capture script.
-Source: [`hero.html`](examples/hero.html).
+Flow field, masked line-by-line reveal, type and palette — all from these skills, recorded
+with the capture script. Source: [`hero.html`](examples/hero.html).
 
 ---
 
-## What it builds
-
-**Shared-element flight.** The tapped cover doesn't dissolve into a new screen, it
-*travels* — siblings clear out of the way first so the eye never loses the thing it chose.
-FLIP, a 560ms flight, detail copy arriving 60ms apart, and the whole gesture reversing on
-close. [`expand.html`](examples/expand.html)
-
-![A cover flying from a grid into an expanded detail view](https://github.com/jangles-byte/atelier/releases/download/media/expand.gif)
-
-**A chart that draws itself.** One electric mint that belongs exclusively to the series, so
-colour reads as data; tabular figures so the counter doesn't reflow; a live head on the
-trace that retires when it lands. [`signal.html`](examples/signal.html)
-
-![An analytics chart drawing its trace with a live head and counting figure](https://github.com/jangles-byte/atelier/releases/download/media/signal.gif)
-
-**Generative motion.** A two-octave noise field where colour is *earned* rather than
-applied — deep oxblood where the flow is calm, gold only where it runs fastest, so
-brightness encodes velocity. [`ember.html`](examples/ember.html)
-
-![Ember: a noise flow field with velocity-mapped colour](https://github.com/jangles-byte/atelier/releases/download/media/ember.gif)
-
----
-
-## Generative motion
-
-Motion as the artwork rather than the interface — flow fields, strange attractors,
-flocking, domain-warped noise, n-body systems. The
-[`generative-motion`](skills/generative-motion/) skill covers the systems with the
-parameter ranges that actually look good, plus the art direction that separates a piece
-from a screensaver.
+## Pieces
 
 > ### → [Browse the generative gallery](examples/generative/)
 
 | | |
 |---|---|
-| ![clifford](https://github.com/jangles-byte/atelier/releases/download/media/gen-attractor.gif) | ![murmuration](https://github.com/jangles-byte/atelier/releases/download/media/gen-boids.gif) |
-| **Clifford** — deterministic chaos. One point iterated 420,000×/frame; brightness is visit density. | **Murmuration** — three local rules, no leader; brightness is local flock density. |
-| ![strata](https://github.com/jangles-byte/atelier/releases/download/media/gen-warp.gif) | ![perihelion](https://github.com/jangles-byte/atelier/releases/download/media/gen-orbits.gif) |
-| **Strata** — noise fed into the coordinates of noise, twice. Only the inner layer evolves, so it breathes rather than slides. | **Perihelion** — bodies falling around three slow masses; they brighten at perihelion and cool at apoapsis. |
+| ![mycelium](https://github.com/jangles-byte/atelier/releases/download/media/physarum.gif) | ![clifford](https://github.com/jangles-byte/atelier/releases/download/media/gen-attractor.gif) |
+| **Mycelium** — 1,048,576 physarum agents on the GPU, four shader passes. The network is a consequence of a million agents agreeing. | **Clifford** — deterministic chaos, 420,000 points a frame. Brightness is visit density, log-scaled. |
+| ![murmuration](https://github.com/jangles-byte/atelier/releases/download/media/gen-boids.gif) | ![strata](https://github.com/jangles-byte/atelier/releases/download/media/gen-warp.gif) |
+| **Murmuration** — three local rules, no leader. Brightness is local flock density. | **Strata** — noise fed into the coordinates of noise, twice. Only the inner layer evolves, so it breathes. |
+| ![perihelion](https://github.com/jangles-byte/atelier/releases/download/media/gen-orbits.gif) | ![ember](https://github.com/jangles-byte/atelier/releases/download/media/gen-ember.gif) |
+| **Perihelion** — bodies falling around three slow masses; they brighten at perihelion and cool at apoapsis. | **Ember** — a flow field where oxblood is calm and gold is fast. |
 
 The rule every piece follows: **colour is earned.** It maps to a property the system
 actually has — velocity, density, visit count, age — never to a rainbow of hue over time.
 Colour that encodes nothing is the loudest signal that no decision was made.
 
----
+## The generative-motion skill
+
+| Reference | What's in it |
+|---|---|
+| **systems.md** | Nine systems with verified parameter ranges and each failure mode: physarum, strange attractors, boids, reaction–diffusion, differential growth, n-body, metaballs, interference, cellular automata |
+| **noise-and-fields.md** | Which noise and why, fbm, domain warping, curl vs angle fields, and turning a field into a composition rather than wallpaper |
+| **gpu-and-shaders.md** | When to go GPU (architectural, not an optimisation), WebGL2 GPGPU with ping-pong state textures, attribute-less drawing, the silent-failure extension minefield, debugging in the order that finds it fastest |
+| **three-dimensional.md** | Raymarched SDFs, smooth-minimum blending, free infinite domains, instancing at scale, and camera discipline |
+| **density-and-tone.md** | Mapping an unbounded accumulation buffer onto a display — the most common way a correct piece looks wrong, and how to find the floor without guessing |
+| **post-processing.md** | Bloom as a mip chain, grain weighted to the midtones, aberration, feedback, gradient-map grading, and the order these must run in |
+| **rendering.md** | Accumulation trails, blending modes, envelopes, batching and scale |
+| **art-direction.md** | The eight tells of tutorial work, the five decisions that make it a piece, and the tuning order |
+| **diagnostic.md** | Black frame, saturating, dying, exploding, clumping, 4fps, beautiful-then-grey-mush — worked by symptom |
+
+### The numbers are checked, not remembered
+
+A parameter just outside the viable band doesn't produce a worse image — it produces
+**nothing**, and you can't tell by looking at the value. So the quoted values are verified
+by scripts that ship with the skill, CPU-only, in seconds:
+
+```bash
+skills/generative-motion/validate/attractors.py     # Lyapunov + occupancy per seed
+skills/generative-motion/validate/gray_scott.py     # runs each (f,k), classifies the result
+```
+
+This caught a real error in this repo's own documentation. The reference used to advise
+animating an attractor by interpolating between two good seeds — measuring it showed
+**8 of 13 steps along that path are non-chaotic**, collapsing the render mid-animation. The
+advice is now to orbit a single seed, and `--path` will check any route you want to take.
+
+Both scripts also search: `attractors.py --search clifford 10` finds new viable seeds and
+reports how many candidates it rejected on the way; `gray_scott.py --scan` maps the viable
+band so you can pick your own pairs.
 
 ## Watch your own work
 
-The part that makes this a tool instead of a reading list:
-
 ```bash
-skills/motion/scripts/capture-motion.py index.html --out motion.gif \
-    --trigger "document.querySelector('#open').click()" --duration 1200
+skills/motion/scripts/capture-motion.py sketch.html --out piece.gif --duration 2400
 ```
 
-It drives headless Chrome over the DevTools protocol and records real composited frames, so
-it works for CSS transitions, Web Animations, GSAP/Framer/Motion One, canvas and WebGL
-alike. Point it at a file or a dev server, give it something to click, get back something
-you can actually judge. The `critique` skill requires this step: **if anything moves, a
-still is not a render.**
+Drives headless Chrome over the DevTools protocol and records real composited frames, so it
+works for canvas, WebGL, CSS and JS animation libraries alike. *Needs only Chrome and
+ffmpeg — no pip installs; the WebSocket client is stdlib.*
 
-*Needs only Chrome/Chromium and ffmpeg — no pip installs; the DevTools WebSocket client is stdlib.*
+## Also in the box
 
-## The motion skill
-
-The front door. Every recipe carries durations, curves, per-stack code, a reduced-motion
-variant, and the failure mode that ruins it — **and a demo you can watch**.
-
-> ### → [Browse the recipe gallery](examples/recipes/)
-> Every recipe, running. Twenty self-contained demos, each autoplaying on a loop with its
-> actual values printed in the corner of the frame, so the GIF documents the recipe.
-> Modal, drawer, dropdown, toast stacks, accordion, tabs, FLIP reorder, drag with
-> snap-back, tickers, route transitions, scroll reveals, parallax, skeletons, progress,
-> spring damping ratios, particles, screen shake, hit-stop, chase cameras.
-
-| Reference | What's in it |
-|---|---|
-| **recipes-interface.md** | Press & hover, modal, drawer with drag-to-dismiss, dropdown, toast stacks, accordion (incl. the `height:auto` problem), tabs, list insert/remove/reorder via FLIP, drag with velocity-aware snap-back, number tickers |
-| **recipes-transitions.md** | Route transitions (View Transitions API + fallback), shared-element flights, scroll reveals, parallax that doesn't jank, skeleton→content, progress states |
-| **recipes-procedural.md** | The loop & delta time, spring integrator, pooled particles, trauma-based screen shake, hit-stop, ambient flow fields, chase cameras |
-| **easing-and-springs.md** | Curve selection, named cubic-béziers, damping-ratio-first spring tuning, staggers, interruption |
-| **principles.md** | Disney's 12 principles translated for UI and game feel, the duration scale, the accessibility floor |
-| **dead-motion-diagnostic.md** | An 11-point ordered diagnostic for motion that feels dead, floaty, cheap, or janky |
-
-## Supporting skills
+Interface motion, for when the animation serves a UI rather than being the artwork.
 
 | Skill | Role |
 |---|---|
-| **performance-craft** | Janky motion is failed motion. Compositor-friendly properties on the web; ProMotion timing, Metal overdraw and particle budgets, efficiency-core scheduling on Apple silicon; engine budgets; and a degradation ladder ordered by visual damage. |
-| **critique** | The quality gate. Capture the real thing, score an 8-dimension rubric with evidence, output ranked changes with exact values. Accessibility findings outrank aesthetics. |
-| **design-direction** | Sets the motion temperament and a written aesthetic point of view, so choices follow intent instead of habit. |
-| **color** | Perceptual palettes in OKLCH, dark/light theme families, contrast discipline, and the glow restraint that keeps motion from becoming noise. |
-| **typography-and-layout** | Type pairing, modular scale, the spacing ladder, grids and when to break them. |
-
-The **generative-motion** skill sits alongside `motion` as a second front door: use `motion`
-when the animation serves an interface, `generative-motion` when the animation *is* the work.
-
-| Reference | What's in it |
-|---|---|
-| **systems.md** | Nine systems with the parameter ranges that actually look good and each failure mode: physarum, strange attractors, boids, reaction–diffusion, differential growth, n-body, metaballs, interference, cellular automata |
-| **noise-and-fields.md** | Which noise and why, fbm, domain warping, curl vs angle fields, and turning a field into a composition rather than wallpaper |
-| **gpu-and-shaders.md** | When to go GPU (architectural, not an optimisation), WebGL2 GPGPU with ping-pong state textures, attribute-less drawing, the float-extension minefield, and debugging in the order that finds it fastest |
-| **density-and-tone.md** | Mapping an unbounded accumulation buffer onto a display. The most common way a correct piece looks wrong — flat white or thin outlines — and how to find the floor without guessing |
-| **post-processing.md** | Bloom as a mip chain, film grain weighted to the midtones, chromatic aberration, feedback, gradient-map grading, and the order these must run in |
-| **rendering.md** | Accumulation trails, blending modes, envelopes, batching and scale |
-| **art-direction.md** | The eight tells of tutorial work, the five decisions that make it a piece, and the tuning order |
-| **diagnostic.md** | Black frame, saturating, dying, exploding, clumping, 4fps, or beautiful-then-grey-mush — worked by symptom |
+| **motion** | Production recipes with tuned values and failure modes — modals, drawers, toasts, FLIP reordering, view transitions, drag, springs, game feel — plus an 11-point diagnostic for motion that feels dead. [20 running demos](examples/recipes/). |
+| **performance-craft** | Compositor discipline on the web; ProMotion timing, Metal overdraw and particle budgets on Apple silicon; engine budgets; and a degradation ladder ordered by visual damage. |
+| **critique** | Capture the real thing, score an 8-dimension rubric with evidence, output ranked changes with exact values. Accessibility findings outrank aesthetics. |
+| **design-direction** · **color** · **typography-and-layout** | Aesthetic point of view, OKLCH palettes and contrast discipline, type and grid. |
 
 ## Install
-
-**As a plugin:**
 
 ```
 /plugin marketplace add jangles-byte/atelier
@@ -135,33 +97,18 @@ when the animation serves an interface, `generative-motion` when the animation *
 /plugin install atelier@atelier
 ```
 
-**As plain skills:**
+Or as plain skills:
 
 ```bash
 git clone https://github.com/jangles-byte/atelier.git
 cp -r atelier/skills/* ~/.claude/skills/
 ```
 
-Skills auto-trigger on relevant work — "animate this", "why does this feel dead", "add a
-page transition". Each SKILL.md is a short router; depth lives in `references/` that load
-only when needed, so context stays light.
-
-## The critique protocol in use
-
-Worked examples where measuring beat eyeballing:
-
-- **[Dead motion, diagnosed](examples/motion-critique.md)** — two pages with identical
-  markup, sampled per animation frame: progress at 40ms 11% → 49%, stagger spread
-  0.0ms → 149.9ms, and a permanent `requestAnimationFrame` loop waking the CPU 60×/second
-  forever to animate one 7px dot.
-- **[A chart's accessibility](examples/chart-critique.md)** — library defaults where the
-  most important series measured **2.53:1** on white, below the 3:1 floor for chart marks,
-  and two series collapsed to **1.14:1** under simulated deuteranopia with a legend as
-  their only key.
-- **[A landing page, rebuilt](examples/critique.md)** — the default template rebuilt
-  against a written philosophy, every text pair contrast-verified in the render.
+Skills auto-trigger on relevant work — "make something generative", "a flow field",
+"why is my shader black", "animate this". Each SKILL.md is a short router; depth lives in
+`references/` that load only when needed, so context stays light.
 
 ## Contributing & license
 
-PRs welcome — see [CONTRIBUTING.md](CONTRIBUTING.md). Principle first, exact values, no
-stack lock-in. MIT.
+PRs welcome — see [CONTRIBUTING.md](CONTRIBUTING.md). Principle first, exact values,
+verified numbers, no stack lock-in. MIT.
